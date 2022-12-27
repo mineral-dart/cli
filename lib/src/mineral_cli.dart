@@ -2,6 +2,7 @@ import 'package:args/args.dart';
 import 'package:mineral_cli/mineral_cli.dart';
 import 'package:mineral_cli/src/command_manager.dart';
 import 'package:mineral_ioc/ioc.dart';
+import 'package:mineral_console/mineral_console.dart';
 
 class MineralCli extends MineralService implements MineralCliContract {
   late Console console;
