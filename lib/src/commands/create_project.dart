@@ -12,11 +12,12 @@ class CreateProject extends CliCommand {
 
   @override
   Future<void> handle(Map args) async {
-    if (args.length == 1) {
+    final name = args['name'];
+    if (name == null) {
       throw MissingArgumentException('name');
     }
 
-    String filename = ReCase(args['name']).snakeCase;
+    String filename = ReCase(name).snakeCase;
 
     final projectDirectory = Directory(join(Directory.current.path, filename));
 
