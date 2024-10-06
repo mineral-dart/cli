@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cli/commands/project_setups/basic_preset.dart';
 import 'package:cli/commands/project_setups/preset.dart';
 import 'package:cli/commands/project_setups/slim_preset.dart';
 import 'package:commander_ui/commander_ui.dart';
@@ -18,12 +19,12 @@ final class CreateProject with Tools implements CliCommandContract {
   Future<void> handle(List<String> arguments) async {
     final projectName = arguments.firstOrNull?.snakeCase ??
         await Input(
-          answer: 'Enter the project name',
+          answer: 'Enter the project name :',
           defaultValue: 'mineral_project',
         ).handle();
 
     final token = await Input(
-      answer: 'Enter your bot token',
+      answer: 'Enter your bot token :',
       secure: true,
     ).handle();
 
@@ -33,7 +34,7 @@ final class CreateProject with Tools implements CliCommandContract {
     ).handle();
 
     final logLevel = await Select<LogLevel>(
-      answer: 'Choose your project preset',
+      answer: 'Choose your log level',
       options: LogLevel.values,
       onDisplay: (preset) => preset.name.toLowerCase(),
       placeholder: 'search preset…',
@@ -41,6 +42,7 @@ final class CreateProject with Tools implements CliCommandContract {
 
     final List<PresetContract> presets = [
       SlimPreset(projectName, useHmr, token, logLevel.name.toLowerCase()),
+      BasicPreset(projectName, useHmr, token, logLevel.name.toLowerCase()),
     ];
 
     final preset = await Select<PresetContract>(
