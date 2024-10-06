@@ -260,10 +260,12 @@ final class MakeCommand with Tools implements CliCommandContract {
   Future<void> _buildDefinition() async {
     final sourceFile = await Select<File>(
       answer: 'Where would you like to create the command ?',
-      options: Directory('src')
+      options: Directory('')
           .listSync(recursive: true)
           .whereType<File>()
           .where((file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))
+          .where((file) => !file.path.endsWith('pubspec.yaml'))
+          .where((file) => !file.path.endsWith('analysis_options.yaml'))
           .toList(),
       onDisplay: (e) => e.path,
       placeholder: 'search…',
