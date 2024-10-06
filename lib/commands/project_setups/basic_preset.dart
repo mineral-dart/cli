@@ -41,6 +41,14 @@ final class BasicPreset with CreateProjectTools, Tools implements PresetContract
     delayed.step('Creating ready event…');
     await createReadyEvent(directory);
 
+    delayed.step('Creating commands…');
+    final commandsDirectory = Directory('${directory.path}/src/commands');
+    await commandsDirectory.create(recursive: true);
+
+    delayed.step('Creating services…');
+    final servicesDirectory = Directory('${directory.path}/src/services');
+    await servicesDirectory.create(recursive: true);
+
     delayed.step('Upgrade dependencies…');
     await runCommand('dart', ['pub', 'upgrade'], rootDir: directory);
 
