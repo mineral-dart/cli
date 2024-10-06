@@ -13,8 +13,10 @@ final class SlimPreset with CreateProjectTools, Tools implements PresetContract 
 
   final String _projectName;
   final bool _useHmr;
+  final String _token;
+  final String _logLevel;
 
-  SlimPreset(this._projectName, this._useHmr);
+  SlimPreset(this._projectName, this._useHmr, this._token, this._logLevel);
 
   @override
   FutureOr handle(List<String> arguments) async {
@@ -27,6 +29,12 @@ final class SlimPreset with CreateProjectTools, Tools implements PresetContract 
 
     delayed.step('Creating main.dart…');
     await _createMainFile();
+
+    delayed.step('Creating environment file…');
+    await createEnvironmentFile(directory, _useHmr, _token, _logLevel);
+
+    delayed.step('Creating gitignore file…');
+    createGitignore(directory);
 
     delayed.step('Upgrade dependencies…');
     await runCommand('dart', ['pub', 'upgrade'], rootDir: directory);
