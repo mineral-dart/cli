@@ -3,6 +3,9 @@ description: A sample command-line application with basic argument parsing.
 version: 0.0.1
 # repository: https://github.com/my_org/my_repo
 
+executables:
+  cli:
+
 environment:
   sdk: ^3.5.3
 
@@ -12,8 +15,8 @@ dependencies:
   collection: ^1.19.0
   commander_ui: ^1.8.0
   dart_style: ^2.3.7
-  mineral:
-    path: ../core
+  mansion: ^0.1.0
+  mineral: 4.0.0-dev.5
   path: ^1.9.0
   recase: ^4.1.0
   yaml: ^3.1.2
