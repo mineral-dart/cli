@@ -27,7 +27,7 @@ final class SlimPreset with CreateProjectTools, Tools implements PresetContract 
     delayed.step('Creating project…');
     final directory = await createBlankProject(_projectName);
 
-    delayed.step('Creating cli.dart…');
+    delayed.step('Creating mineral_cli.dart…');
     await _createMainFile();
 
     delayed.step('Creating environment file…');
@@ -74,7 +74,7 @@ final class SlimPreset with CreateProjectTools, Tools implements PresetContract 
       ..writeln('await client.init();')
       ..writeln('}');
 
-    final file = File('$_projectName/src/cli.dart');
+    final file = File('$_projectName/src/mineral_cli.dart');
     await file.create(recursive: true);
     await file.writeAsString(formatter.format(buffer.toString()));
 
