@@ -1,4 +1,4 @@
-import 'package:cli/src/infrastructure/entities/cli_command.dart';
+import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
 import 'package:yaml/yaml.dart';
 
 final class MineralPubSpecContext {

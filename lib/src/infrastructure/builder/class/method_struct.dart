@@ -1,4 +1,4 @@
-import 'package:cli/src/infrastructure/builder/class/parameter_struct.dart';
+import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
 
 final class MethodStruct {
   final String name;

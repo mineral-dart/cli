@@ -1,6 +1,6 @@
 
-import 'package:cli/src/infrastructure/builder/class/method_struct.dart';
-import 'package:cli/src/infrastructure/builder/class/parameter_struct.dart';
+import 'package:mineral_cli/src/infrastructure/builder/class/method_struct.dart';
+import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
 
 final class ClassBuilder {
   final List<String> imports = [];

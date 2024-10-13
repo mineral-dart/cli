@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cli/src/infrastructure/entities/cli_command.dart';
+import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
 
 abstract interface class CliCommandContract {
   String get name;

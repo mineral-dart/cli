@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:cli/src/infrastructure/builder/class/class_builder.dart';
-import 'package:cli/src/infrastructure/builder/class/method_struct.dart';
-import 'package:cli/src/infrastructure/builder/class/parameter_struct.dart';
-import 'package:cli/src/infrastructure/contracts/cli_command_contract.dart';
-import 'package:cli/src/infrastructure/entities/cli_command.dart';
+import 'package:mineral_cli/src/infrastructure/builder/class/class_builder.dart';
+import 'package:mineral_cli/src/infrastructure/builder/class/method_struct.dart';
+import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
+import 'package:mineral_cli/src/infrastructure/contracts/cli_command_contract.dart';
+import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
 import 'package:commander_ui/commander_ui.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:mineral/utils.dart';

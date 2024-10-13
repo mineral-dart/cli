@@ -1,10 +1,10 @@
-name: cli
+name: mineral_cli
 description: A sample command-line application with basic argument parsing.
-version: 0.0.1
-# repository: https://github.com/my_org/my_repo
+version: 2.0.0-dev.1
+repository: https://github.com/mineral-dart/cli
 
 executables:
-  cli:
+  mineral: cli
 
 environment:
   sdk: ^3.5.3

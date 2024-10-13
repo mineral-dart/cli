@@ -1,5 +1,5 @@
-import 'package:cli/src/infrastructure/contracts/cli_command_contract.dart';
-import 'package:cli/src/infrastructure/entities/cli_command.dart';
+import 'package:mineral_cli/src/infrastructure/contracts/cli_command_contract.dart';
+import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
 import 'package:commander_ui/commander_ui.dart';
 import 'package:mansion/mansion.dart';
 

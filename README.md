@@ -1,1 +1,10 @@
-A sample command-line application providing basic argument parsing with an entrypoint in `bin/`.
+# 📦 Command line interface
+
+The official Mineral framework command line interface.
+
+## Installation
+
+```bash
+dart pub global activate mineral_cli
+mineral help
+```

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:cli/src/infrastructure/builder/class/class_builder.dart';
-import 'package:cli/src/infrastructure/builder/class/method_struct.dart';
-import 'package:cli/src/infrastructure/builder/class/parameter_struct.dart';
-import 'package:cli/src/domain/commands/project_setups/preset.dart';
+import 'package:mineral_cli/src/infrastructure/builder/class/class_builder.dart';
+import 'package:mineral_cli/src/infrastructure/builder/class/method_struct.dart';
+import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
+import 'package:mineral_cli/src/domain/commands/project_setups/preset.dart';
 import 'package:commander_ui/commander_ui.dart';
 import 'package:mineral/events.dart';
 
@@ -31,7 +31,7 @@ final class BasicPreset with CreateProjectTools, Tools implements PresetContract
     delayed.step('Creating project…');
     final directory = await createBlankProject(_projectName);
 
-    delayed.step('Creating main.dart…');
+    delayed.step('Creating cli.dart…');
     await _createMainFile();
 
     delayed.step('Creating environment file…');
@@ -86,7 +86,7 @@ final class BasicPreset with CreateProjectTools, Tools implements PresetContract
       ..writeln('await client.init();')
       ..writeln('}');
 
-    final file = File('$_projectName/src/main.dart');
+    final file = File('$_projectName/src/cli.dart');
     await file.create(recursive: true);
     await file.writeAsString(formatter.format(buffer.toString()));
 
