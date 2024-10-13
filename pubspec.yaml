@@ -1,5 +1,5 @@
 name: mineral_cli
-description: A sample command-line application with basic argument parsing.
+description: The official Mineral framework command line interface.
 version: 2.0.0-dev.1
 repository: https://github.com/mineral-dart/cli
 
