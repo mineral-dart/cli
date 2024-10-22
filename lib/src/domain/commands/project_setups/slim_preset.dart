@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:mineral_cli/src/domain/commands/project_setups/preset.dart';
 import 'package:commander_ui/commander_ui.dart';
 
-final class SlimPreset with CreateProjectTools, Tools implements PresetContract {
+final class SlimPreset with CreateProjectTools implements PresetContract {
   @override
   String get name => 'Slim';
 
@@ -20,35 +20,33 @@ final class SlimPreset with CreateProjectTools, Tools implements PresetContract 
 
   @override
   FutureOr handle(List<String> arguments) async {
-    hideInput();
+    final commander = Commander(level: Level.verbose);
 
-    final delayed = Delayed();
+    final task = await commander.task('Creating project…');
 
-    delayed.step('Creating project…');
-    final directory = await createBlankProject(_projectName);
+    final directory = await task.step('Creating project…', callback: () {
+      return createBlankProject(_projectName);
+    });
 
-    delayed.step('Creating mineral_cli.dart…');
-    await _createMainFile();
+    await task.step('Creating main file…', callback: () => _createMainFile());
 
-    delayed.step('Creating environment file…');
-    await createEnvironmentFile(directory, _useHmr, _token, _logLevel);
+    await task.step('Creating environment file…', callback: () {
+      return createEnvironmentFile(directory, _useHmr, _token, _logLevel);
+    });
 
-    delayed.step('Creating gitignore file…');
-    createGitignore(directory);
+    await task.step('Creating gitignore file…', callback: () {
+      return createGitignore(directory);
+    });
 
-    delayed.step('Upgrade dependencies…');
-    await runCommand('dart', ['pub', 'upgrade'], rootDir: directory);
+    await task.step('Upgrade dependencies…', callback: () {
+      return runCommand('dart', ['pub', 'upgrade'], rootDir: directory);
+    });
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await task.step('Fetching dependencies…', callback: () {
+      return runCommand('dart', ['pub', 'get']);
+    });
 
-    delayed.step('Fetching dependencies…');
-    await runCommand('dart', ['pub', 'get']);
-
-    delayed.success('Project created !');
-
-    showInput();
-
-    await Future.delayed(const Duration(milliseconds: 1000), () => exit(0));
+    task.success('Project created !');
   }
 
   Future<void> _createMainFile() async {

@@ -6,9 +6,9 @@ import 'package:mineral_cli/src/infrastructure/builder/class/method_struct.dart'
 import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
 import 'package:mineral_cli/src/domain/commands/project_setups/preset.dart';
 import 'package:commander_ui/commander_ui.dart';
-import 'package:mineral/events.dart';
+import 'package:mineral/events.dart' as events;
 
-final class BasicPreset with CreateProjectTools, Tools implements PresetContract {
+final class BasicPreset with CreateProjectTools implements PresetContract {
   @override
   String get name => 'Basic';
 
@@ -24,46 +24,52 @@ final class BasicPreset with CreateProjectTools, Tools implements PresetContract
 
   @override
   FutureOr handle(List<String> arguments) async {
-    hideInput();
+    final commander = Commander(level: Level.verbose);
 
-    final delayed = Delayed();
+    final task = await commander.task('Creating project…');
 
-    delayed.step('Creating project…');
-    final directory = await createBlankProject(_projectName);
+    final directory = await task.step('Creating project…', callback: () {
+      return createBlankProject(_projectName);
+    });
 
-    delayed.step('Creating mineral_cli.dart…');
-    await _createMainFile();
+    await task.step('Creating main file…', callback: () => _createMainFile());
 
-    delayed.step('Creating environment file…');
-    await createEnvironmentFile(directory, _useHmr, _token, _logLevel);
+    await task.step('Creating environment file…', callback: () {
+      return createEnvironmentFile(directory, _useHmr, _token, _logLevel);
+    });
 
-    delayed.step('Creating gitignore file…');
-    createGitignore(directory);
+    await task.step('Creating gitignore file…', callback: () {
+      return createGitignore(directory);
+    });
 
-    delayed.step('Creating ready event…');
-    await createReadyEvent(directory);
+    await task.step('Creating ready file…', callback: () {
+      return createReadyEvent(directory);
+    });
 
-    delayed.step('Creating commands…');
-    final commandsDirectory = Directory('${directory.path}/src/commands');
-    await commandsDirectory.create(recursive: true);
+    await task.step('Creating commands…', callback: () {
+      final commandsDirectory = Directory('${directory.path}/src/commands');
+      return commandsDirectory.create(recursive: true);
+    });
 
-    delayed.step('Creating services…');
-    final servicesDirectory = Directory('${directory.path}/src/services');
-    await servicesDirectory.create(recursive: true);
+    await task.step('Creating events…', callback: () {
+      final eventsDirectory = Directory('${directory.path}/src/events');
+      return eventsDirectory.create(recursive: true);
+    });
 
-    delayed.step('Upgrade dependencies…');
-    await runCommand('dart', ['pub', 'upgrade'], rootDir: directory);
+    await task.step('Creating services…', callback: () {
+      final modelsDirectory = Directory('${directory.path}/src/services');
+      return modelsDirectory.create(recursive: true);
+    });
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await task.step('Upgrade dependencies…', callback: () {
+      return runCommand('dart', ['pub', 'upgrade'], rootDir: directory);
+    });
 
-    delayed.step('Fetching dependencies…');
-    await runCommand('dart', ['pub', 'get']);
+    await task.step('Fetching dependencies…', callback: () {
+      return runCommand('dart', ['pub', 'get']);
+    });
 
-    delayed.success('Project created !');
-
-    showInput();
-
-    await Future.delayed(const Duration(milliseconds: 1000), () => exit(0));
+    task.success('Project created !');
   }
 
   Future<void> _createMainFile() async {
@@ -94,18 +100,21 @@ final class BasicPreset with CreateProjectTools, Tools implements PresetContract
   }
 
   Future<void> createReadyEvent(Directory directory) async {
-    final buffer = StringBuffer()..writeln('''logger.info('\${bot.username} is ready ! 🚀');''');
+    final buffer = StringBuffer()
+      ..writeln('''logger.info('\${bot.username} is ready ! 🚀');''');
 
     final classBuilder = ClassBuilder()
         .setClassName('Ready')
-        .setExtends(ParameterStruct(name: 'ReadyEvent', import: 'package:mineral/events.dart'))
-        .addMixin(ParameterStruct(name: 'InjectLogger', import: 'package:mineral/container.dart'))
+        .setExtends(ParameterStruct(
+            name: 'ReadyEvent', import: 'package:mineral/events.dart'))
+        .addMixin(ParameterStruct(
+            name: 'InjectLogger', import: 'package:mineral/container.dart'))
         .addMethod(MethodStruct(
             name: 'handle',
             isOverride: true,
-            parameters: Event.ready.parameters
-                .map((parameter) =>
-                    ParameterStruct(name: parameter, import: 'package:mineral/api.dart'))
+            parameters: events.Event.ready.parameters
+                .map((parameter) => ParameterStruct(
+                    name: parameter, import: 'package:mineral/api.dart'))
                 .toList(),
             returnType: ParameterStruct(name: 'void'),
             body: buffer));

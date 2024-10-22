@@ -1,3 +1,6 @@
+## 2.0.0-dev.2
+- Rework the whole library with newer [`commander_ui`](https://pub.dev/packages/commander_ui)
+
 ## 2.0.0-dev.1
 
 - Rework `mineral_cli` to use the new Mineral API.

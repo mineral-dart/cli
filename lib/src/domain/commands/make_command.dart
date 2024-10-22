@@ -9,6 +9,7 @@ import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
 import 'package:commander_ui/commander_ui.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:mineral/utils.dart';
+import 'package:mineral_cli/src/infrastructure/utils.dart';
 import 'package:recase/recase.dart';
 import 'package:yaml/yaml.dart';
 
@@ -31,7 +32,10 @@ typedef Action = ({ActionType action, String label});
 typedef SubCommand = ({String label, String description});
 typedef Group = ({String label, String description, List<SubCommand> commands});
 
-final class MakeCommand with Tools implements CliCommandContract {
+final class MakeCommand implements CliCommandContract {
+  final _commander = Commander(level: Level.verbose);
+  late ScreenManager _screenManager;
+
   @override
   String get name => 'make:command';
 
@@ -48,35 +52,36 @@ final class MakeCommand with Tools implements CliCommandContract {
   final List<Group> _groups = [];
   final List<SubCommand> _subCommands = [];
 
-  AlternateScreen? _screen;
-
   @override
   Future<void> handle(List<MineralCommand> _, List<String> arguments) async {
-    _screen = AlternateScreen(title: 'Creating command…');
-    _screen?.start();
+    _screenManager = _commander.screen(title: 'Creating command…');
+    _screenManager.enter();
 
-    _filename = arguments.firstOrNull?.snakeCase ??
-        await Input(
-          answer: 'Enter the command filename',
-          placeholder: 'foo_command',
+    _filename = (arguments.firstOrNull?.snakeCase ??
+        await _commander.ask(
+          'Enter the command filename',
           defaultValue: 'foo_command',
-        ).handle();
+          validate: notEmptyValidator,
+        ))!;
 
     final className = _filename.pascalCase;
     commandClass.setClassName(className);
 
-    _location = await Select<Directory>(
-      answer: 'Where would you like to create the command ?',
-      options: Directory('src').listSync(recursive: true).whereType<Directory>().toList(),
+    _location = await _commander.select<Directory>(
+      'Where would you like to create the command ?',
+      options: Directory('src')
+          .listSync(recursive: true)
+          .whereType<Directory>()
+          .toList(),
       onDisplay: (e) => e.path,
       placeholder: 'search…',
-    ).handle();
+    );
 
-    final commandType = await Select<CommandType>(
-      answer: 'What type of command would you like to create ?',
+    final commandType = await _commander.select<CommandType>(
+      'What type of command would you like to create ?',
       options: [CommandType.declaration, CommandType.definition],
       placeholder: 'search…',
-    ).handle();
+    );
 
     return switch (commandType) {
       CommandType.declaration => _buildDeclaration(),
@@ -85,13 +90,13 @@ final class MakeCommand with Tools implements CliCommandContract {
   }
 
   Future<void> _buildDeclaration() async {
-    final title = await Input(
-      answer: 'Enter the command name',
-    ).handle();
+    final title = await _commander.ask<String>('Enter the command name',
+        validate: notEmptyValidator);
 
-    final description = await Input(
-      answer: 'Enter the description',
-    ).handle();
+    final description = await _commander.ask<String>(
+      'Enter the description',
+      validate: notEmptyValidator,
+    );
 
     _commandName = title.pascalCase;
     _commandDescription = description.pascalCase;
@@ -100,8 +105,8 @@ final class MakeCommand with Tools implements CliCommandContract {
   }
 
   Future<void> _drawMenu() async {
-    final action = await Select<Action>(
-      answer: 'Where would you like to create the event ?',
+    final action = await _commander.select<Action>(
+      'What would you like to do ?',
       options: [
         (action: ActionType.addGroup, label: 'Créer un groupe de commandes'),
         (action: ActionType.addSubCommand, label: 'Add subcommand'),
@@ -109,7 +114,7 @@ final class MakeCommand with Tools implements CliCommandContract {
       ],
       onDisplay: (e) => e.label,
       placeholder: 'search…',
-    ).handle();
+    );
 
     return switch (action.action) {
       ActionType.addGroup => _addGroup(),
@@ -119,39 +124,48 @@ final class MakeCommand with Tools implements CliCommandContract {
   }
 
   Future<void> _addGroup() async {
-    final title = await Input(
-      answer: 'Enter the group name',
-    ).handle();
+    final title = await _commander.ask(
+      'Enter the group name',
+      validate: notEmptyValidator,
+    );
 
-    final description = await Input(
-      answer: 'Enter the group description',
-    ).handle();
+    stdout.writeln();
 
-    _groups.add((label: title, description: description, commands: []));
+    final description = await _commander.ask(
+      'Enter the group description',
+      validate: notEmptyValidator,
+    );
+
+    _groups.add((label: title!, description: description!, commands: []));
     await _drawMenu();
   }
 
   Future<void> _addSubCommand() async {
-    final name = await Input(
-      answer: 'Enter the subcommand name',
-    ).handle();
+    final name = await _commander.ask(
+      'Enter the subcommand name',
+      validate: notEmptyValidator,
+    );
 
-    final description = await Input(
-      answer: 'Enter the subcommand description',
-    ).handle();
+    final description = await _commander.ask(
+      'Enter the subcommand description',
+      validate: notEmptyValidator,
+    );
 
     if (_groups.isNotEmpty) {
-      final group = await Select<Group>(
-        answer: 'Select the group (optional)',
-        options: [(label: 'No group', description: 'No group', commands: []), ..._groups],
+      final group = await _commander.select<Group>(
+        'Select the group (optional)',
+        options: [
+          (label: 'No group', description: 'No group', commands: []),
+          ..._groups
+        ],
         onDisplay: (element) => element.label,
         placeholder: 'search a group…',
-      ).handle();
+      );
 
       if (group.label != 'No group') {
-        group.commands.add((label: name, description: description));
+        group.commands.add((label: name!, description: description!));
       } else {
-        _subCommands.add((label: name, description: description));
+        _subCommands.add((label: name!, description: description!));
       }
     }
 
@@ -159,12 +173,7 @@ final class MakeCommand with Tools implements CliCommandContract {
   }
 
   Future<void> _buildDeclarationClass() async {
-    _screen?.stop();
-    hideInput();
-
-    final delayed = Delayed();
-
-    delayed.step('Build command class…');
+    _screenManager.leave();
 
     final body = StringBuffer()
       ..write('return CommandDeclarationBuilder()')
@@ -205,7 +214,8 @@ final class MakeCommand with Tools implements CliCommandContract {
         isAsync: true,
         body: StringBuffer('''print('Hello, World!');'''),
         parameters: [
-          ParameterStruct(name: 'CommandContext', import: 'package:mineral/api.dart'),
+          ParameterStruct(
+              name: 'CommandContext', import: 'package:mineral/api.dart'),
         ],
       ));
     }
@@ -248,12 +258,13 @@ final class MakeCommand with Tools implements CliCommandContract {
     }
 
     commandClass
-        .addImplement(
-            ParameterStruct(name: 'CommandDeclaration', import: 'package:mineral/api.dart'))
+        .addImplement(ParameterStruct(
+            name: 'CommandDeclaration', import: 'package:mineral/api.dart'))
         .addMethod(MethodStruct(
           name: 'build',
           returnType: ParameterStruct(
-              name: 'CommandDeclarationBuilder', import: 'package:mineral/api.dart'),
+              name: 'CommandDeclarationBuilder',
+              import: 'package:mineral/api.dart'),
           body: body,
           isOverride: true,
         ));
@@ -262,22 +273,23 @@ final class MakeCommand with Tools implements CliCommandContract {
   }
 
   Future<void> _buildDefinition() async {
-    final sourceFile = await Select<File>(
-      answer: 'Where would you like to create the command ?',
+    final sourceFile = await _commander.select<File>(
+      'Where would you like to create the command ?',
       options: Directory('')
           .listSync(recursive: true)
           .whereType<File>()
-          .where((file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))
+          .where(
+              (file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))
           .where((file) => !file.path.endsWith('pubspec.yaml'))
           .where((file) => !file.path.endsWith('analysis_options.yaml'))
           .toList(),
       onDisplay: (e) => e.path,
       placeholder: 'search…',
-    ).handle();
+    );
 
     commandClass.imports.add('dart:io');
-    commandClass.addImplement(
-        ParameterStruct(name: 'CommandDefinition', import: 'package:mineral/api.dart'));
+    commandClass.addImplement(ParameterStruct(
+        name: 'CommandDefinition', import: 'package:mineral/api.dart'));
 
     final body = StringBuffer()
       ..write('return CommandDefinitionBuilder()')
@@ -316,23 +328,21 @@ final class MakeCommand with Tools implements CliCommandContract {
   Future<void> _createFileInDisk(String clazz) async {
     final formatter = DartFormatter(pageWidth: 150);
 
-    _screen?.stop();
-    hideInput();
-
-    final delayed = Delayed();
-    delayed.step('Creating file…');
+    _screenManager.leave();
+    final task = await _commander.task('Creating file…');
+    task.step('Creating file…');
 
     try {
-      final file = File('${_location.path}/${_filename.snakeCase}.dart');
-      await file.writeAsString(formatter.format(clazz));
+      final file = await task.step('Creating file…', callback: () async {
+        final file = File('${_location.path}/${_filename.snakeCase}.dart');
+        await file.writeAsString(formatter.format(clazz));
 
-      delayed.success('Command created successfully in ${file.path}');
+        return file;
+      });
 
-      await Future.delayed(Duration(seconds: 1), () => exit(0));
+      task.success('Command created successfully in ${file.path}');
     } catch (error) {
-      delayed.error('An error occurred while creating the file: $error');
-    } finally {
-      showInput();
+      task.error('An error occurred while creating the file: $error');
     }
   }
 }

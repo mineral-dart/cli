@@ -74,10 +74,10 @@ packages:
     dependency: "direct main"
     description:
       name: commander_ui
-      sha256: "0595b70424018eca9d07b6d81a3a4537e0e9ae40eead420cb54bcd6e58fc4b41"
+      sha256: "5e7111c02895b957c91bd201ff7c7e3410aa24619443208f55c3af581509957d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.0"
+    version: "2.2.2"
   convert:
     dependency: transitive
     description:
@@ -538,10 +538,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "4d45dc9069dba4619dc0ebd93c7cec5e66d8482cb625a370ac806dcc8165f2ec"
+      sha256: e1d0cc62e65dc2561f5071fcbccecf58ff20c344f8f3dc7d4922df372a11df1f
       url: "https://pub.dev"
     source: hosted
-    version: "5.5.5"
+    version: "5.7.1"
   yaml:
     dependency: "direct main"
     description:

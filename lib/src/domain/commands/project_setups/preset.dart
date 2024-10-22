@@ -30,7 +30,8 @@ mixin CreateProjectTools {
     }
   }
 
-  Future<void> createPubspec(Directory projectRoot, PresetContract preset) async {
+  Future<void> createPubspec(
+      Directory projectRoot, PresetContract preset) async {
     final pubspecFile = File('${projectRoot.path}/pubspec.yaml');
 
     final Map<String, dynamic> yaml = {
@@ -59,7 +60,8 @@ mixin CreateProjectTools {
     await pubspecFile.writeAsString(buffer.toString());
   }
 
-  Future<void> createEnvironmentFile(Directory projectRoot, bool useHmr, String token, String logLevel) async {
+  Future<void> createEnvironmentFile(
+      Directory projectRoot, bool useHmr, String token, String logLevel) async {
     final environmentFile = File('${projectRoot.path}/.env');
     final environmentFileExample = File('${projectRoot.path}/.env.example');
 

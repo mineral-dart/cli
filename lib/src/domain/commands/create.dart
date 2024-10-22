@@ -9,7 +9,7 @@ import 'package:commander_ui/commander_ui.dart';
 import 'package:mineral/services.dart';
 import 'package:recase/recase.dart';
 
-final class CreateProject with Tools implements CliCommandContract {
+final class CreateProject implements CliCommandContract {
   @override
   String get name => 'create';
 
@@ -18,40 +18,49 @@ final class CreateProject with Tools implements CliCommandContract {
 
   @override
   Future<void> handle(List<MineralCommand> _, List<String> arguments) async {
+    final commander = Commander(level: Level.verbose);
+
     final projectName = arguments.firstOrNull?.snakeCase ??
-        await Input(
-          answer: 'Enter the project name :',
+        await commander.ask(
+          'Enter the project name :',
           defaultValue: 'mineral_project',
-        ).handle();
+          validate: (value) {
+            return switch (value) {
+              String(:final isEmpty) when isEmpty =>
+                'The project name cannot be empty',
+              _ => null,
+            };
+          },
+        );
 
-    final token = await Input(
-      answer: 'Enter your bot token :',
-      secure: true,
-    ).handle();
+    final token = await commander.ask(
+      'Enter your bot token :',
+      hidden: true,
+    );
 
-    final useHmr = await Switch(
-      answer: 'Would you like to enable HMR ?',
+    final useHmr = await commander.swap(
+      'Would you like to enable HMR ?',
       defaultValue: true,
-    ).handle();
+    );
 
-    final logLevel = await Select<LogLevel>(
-      answer: 'Choose your log level',
+    final logLevel = await commander.select<LogLevel>(
+      'Choose your log level',
       options: LogLevel.values,
       onDisplay: (preset) => preset.name.toLowerCase(),
       placeholder: 'search preset…',
-    ).handle();
+    );
 
     final List<PresetContract> presets = [
-      SlimPreset(projectName, useHmr, token, logLevel.name.toLowerCase()),
+      SlimPreset(projectName!, useHmr, token!, logLevel.name.toLowerCase()),
       BasicPreset(projectName, useHmr, token, logLevel.name.toLowerCase()),
     ];
 
-    final preset = await Select<PresetContract>(
-      answer: 'Choose your project preset',
+    final preset = await commander.select<PresetContract>(
+      'Choose your project preset',
       options: presets,
       onDisplay: (preset) => preset.name,
       placeholder: 'search preset…',
-    ).handle();
+    );
 
     await preset.handle(arguments);
   }

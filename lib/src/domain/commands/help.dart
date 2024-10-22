@@ -3,7 +3,7 @@ import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
 import 'package:commander_ui/commander_ui.dart';
 import 'package:mansion/mansion.dart';
 
-final class Help with Tools implements CliCommandContract {
+final class Help implements CliCommandContract {
   @override
   String get name => 'help';
 
@@ -11,7 +11,8 @@ final class Help with Tools implements CliCommandContract {
   String get description => 'Display the help message';
 
   @override
-  Future<void> handle(List<MineralCommand> commands, List<String> arguments) async {
+  Future<void> handle(
+      List<MineralCommand> commands, List<String> arguments) async {
     final Map<String, List<MineralCommand>> commandBucket = {};
 
     for (final command in commands) {

@@ -22,7 +22,8 @@ final class Cli {
   Future<void> _loadRemoteCommands() async {
     final pubspecFile = File('pubspec.yaml');
     final pubspecContent = await pubspecFile.readAsYaml();
-    final pubspec = PubspecFile.fromJson(Directory.current.path, pubspecContent);
+    final pubspec =
+        PubspecFile.fromJson(Directory.current.path, pubspecContent);
 
     await pubspec.loadDependencies();
 
@@ -37,7 +38,8 @@ final class Cli {
           final depPubspec = PubspecFile.fromJson(dep.location, content);
           await depPubspec.loadDependencies();
 
-          if (depPubspec.mineral?.commands case final List<MineralCommand> projectCommands) {
+          if (depPubspec.mineral?.commands
+              case final List<MineralCommand> projectCommands) {
             commands.addAll(projectCommands);
           }
         }
@@ -45,9 +47,11 @@ final class Cli {
     }));
   }
 
-  Future<void> _runCommand(List<String> arguments, MineralCommand command) async {
+  Future<void> _runCommand(
+      List<String> arguments, MineralCommand command) async {
     if (command.handle
-        case final Function(List<MineralCommand> commands, List<String> arguments) handle) {
+        case final Function(
+            List<MineralCommand> commands, List<String> arguments) handle) {
       await handle(commands, arguments.skip(1).toList());
       return;
     }
@@ -63,7 +67,8 @@ final class Cli {
   }
 
   Future<void> _findCommandAndRun(List<String> arguments) async {
-    final targetCommand = commands.firstWhere((command) => command.name == arguments.firstOrNull,
+    final targetCommand = commands.firstWhere(
+        (command) => command.name == arguments.firstOrNull,
         orElse: () => commands.firstWhere((command) => command.name == 'help'));
 
     return _runCommand(arguments, targetCommand);
@@ -73,7 +78,8 @@ final class Cli {
     commands.add(MineralCommand(
         name: command.name,
         description: command.description,
-        handle: (commands, List<String> arguments) => command.handle(commands, arguments)));
+        handle: (commands, List<String> arguments) =>
+            command.handle(commands, arguments)));
   }
 
   Future<void> handle(List<String> args) async {

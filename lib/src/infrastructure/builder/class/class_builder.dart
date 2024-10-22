@@ -1,4 +1,3 @@
-
 import 'package:mineral_cli/src/infrastructure/builder/class/method_struct.dart';
 import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
 
@@ -39,7 +38,10 @@ final class ClassBuilder {
   ClassBuilder addMethod(MethodStruct method) {
     methods.add(method);
 
-    final imports = [method.returnType.import, ...method.parameters.map((parameter) => parameter.import)];
+    final imports = [
+      method.returnType.import,
+      ...method.parameters.map((parameter) => parameter.import)
+    ];
     for (final import in imports) {
       if (import case final String value when !this.imports.contains(value)) {
         this.imports.add(value);

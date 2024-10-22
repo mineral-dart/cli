@@ -43,7 +43,6 @@ final class PubspecFile {
   }
 
   factory PubspecFile.fromJson(String location, Map<String, dynamic> json) {
-
     return PubspecFile(
       location: location,
       name: json['name'],

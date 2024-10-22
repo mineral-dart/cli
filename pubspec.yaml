@@ -1,6 +1,6 @@
 name: mineral_cli
 description: The official Mineral framework command line interface.
-version: 2.0.0-dev.1
+version: 2.0.0-dev.2
 repository: https://github.com/mineral-dart/cli
 
 executables:
@@ -13,7 +13,7 @@ environment:
 dependencies:
   args: ^2.4.2
   collection: ^1.19.0
-  commander_ui: ^1.8.0
+  commander_ui: ^2.2.2
   dart_style: ^2.3.7
   mansion: ^0.1.0
   mineral: ^4.0.0-dev.5

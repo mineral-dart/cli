@@ -8,10 +8,14 @@ import 'package:mineral_cli/src/infrastructure/contracts/cli_command_contract.da
 import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
 import 'package:commander_ui/commander_ui.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:mineral/events.dart';
+import 'package:mineral_cli/src/infrastructure/utils.dart';
 import 'package:recase/recase.dart';
 
-final class MakeEvent with Tools implements CliCommandContract {
+import 'package:mineral/events.dart' as events;
+
+final class MakeEvent implements CliCommandContract {
+  final _commander = Commander(level: Level.verbose);
+
   @override
   String get name => 'make:event';
 
@@ -22,65 +26,58 @@ final class MakeEvent with Tools implements CliCommandContract {
   Future<void> handle(List<MineralCommand> _, List<String> arguments) async {
     final formatter = DartFormatter(pageWidth: 150);
 
-    final screen = AlternateScreen(title: 'Creating event…');
-    screen.start();
-
-    final event = await Select<Event>(
-      answer: 'Choose your event to make it !',
-      options: Event.values,
+    final event = await _commander.select<events.Event>(
+      'Choose your event to make it !',
+      options: events.Event.values,
       onDisplay: (e) => e.value.toString(),
       placeholder: 'search…',
-      onExit: () => screen.stop(),
-    ).handle();
+    );
 
     final filename = arguments.firstOrNull?.snakeCase ??
-        await Input(
-          answer: 'Enter the event name',
-          placeholder: 'Event',
-          defaultValue: event.value.toString().replaceAll('Event', '').snakeCase,
-          onExit: () => screen.stop(),
-        ).handle();
+        await _commander.ask<String>(
+          'Enter the event name',
+          defaultValue:
+              event.value.toString().replaceAll('Event', '').snakeCase,
+          validate: notEmptyValidator,
+        );
 
     final className = filename.pascalCase;
 
-    final location = await Select<Directory>(
-      answer: 'Where would you like to create the event ?',
-      options: Directory('src').listSync(recursive: true).whereType<Directory>().toList(),
+    final location = await _commander.select<Directory>(
+      'Where would you like to create the event ?',
+      options: Directory('src')
+          .listSync(recursive: true)
+          .whereType<Directory>()
+          .toList(),
       onDisplay: (e) => e.path,
       placeholder: 'search…',
-      onExit: () => screen.stop(),
-    ).handle();
+    );
 
-    screen.stop();
-
-    hideInput();
-
-    final delayed = Delayed();
-
-    delayed.step('Build event class…');
-
-    final eventClass = _buildClass(className, event);
-    final file = File('${location.path}/$filename.dart');
-
-    delayed.step('Creating file…');
+    final task = await _commander.task('Creating event…');
+    final eventClass = await task.step('Building event class…', callback: () {
+      return _buildClass(className, event);
+    });
 
     try {
-      await file.writeAsString(formatter.format(eventClass));
-      delayed.success('Event created successfully in ${file.path}');
+      final file = await task.step('Building event class…', callback: () async {
+        final file = File('${location.path}/$filename.dart');
+        await file.writeAsString(formatter.format(eventClass));
 
-      await Future.delayed(Duration(seconds: 1), () => exit(0));
+        return file;
+      });
+
+      task.success('Event created successfully in ${file.path}');
     } catch (error) {
-      delayed.error('An error occurred while creating the file: $error');
+      task.error('An error occurred while creating the file: $error');
     }
-
-    showInput();
   }
 
-  String _buildClass(String className, Event event) {
+  String _buildClass(String className, events.Event event) {
     return ClassBuilder()
         .setClassName(className)
-        .setExtends(
-            ParameterStruct(name: event.value.toString(), import: 'package:mineral/events.dart'))
+        .setExtends(ParameterStruct(
+            name: event.value.toString(),
+            import: 'package:mineral/events.dart'))
         .addMethod(MethodStruct(
             name: 'handle',
             returnType: ParameterStruct(name: 'Future<void>', import: null),
@@ -88,8 +85,8 @@ final class MakeEvent with Tools implements CliCommandContract {
             isAsync: true,
             body: StringBuffer()..write('// Your code here'),
             parameters: event.parameters
-                .map(
-                    (element) => ParameterStruct(name: element, import: 'package:mineral/api.dart'))
+                .map((element) => ParameterStruct(
+                    name: element, import: 'package:mineral/api.dart'))
                 .toList()))
         .build();
   }

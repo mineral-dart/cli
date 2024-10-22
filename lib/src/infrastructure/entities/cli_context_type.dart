@@ -1,5 +1,1 @@
-enum CliContextType {
-  unknown,
-  global,
-  project
-}
+enum CliContextType { unknown, global, project }
