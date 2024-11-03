@@ -1,5 +1,6 @@
 ## 2.0.0-dev.3
 - Change `mineral_cli` wording to `main` in presets
+- Prevent fatal error when `mineral.commands` is empty in `pubspec.yaml`
 
 ## 2.0.0-dev.2
 - Rework the whole library with newer [`commander_ui`](https://pub.dev/packages/commander_ui)
