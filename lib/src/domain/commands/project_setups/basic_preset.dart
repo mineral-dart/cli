@@ -92,7 +92,7 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
       ..writeln('await client.init();')
       ..writeln('}');
 
-    final file = File('$_projectName/src/mineral_cli.dart');
+    final file = File('$_projectName/src/main.dart');
     await file.create(recursive: true);
     await file.writeAsString(formatter.format(buffer.toString()));
 
