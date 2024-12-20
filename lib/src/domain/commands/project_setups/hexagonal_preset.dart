@@ -43,11 +43,13 @@ final class HexagonalPreset with CreateProjectTools implements PresetContract {
     });
 
     await task.step('Creating infrastructure file…', callback: () async {
-      await Directory('${directory.path}/lib/infrastructure').create(recursive: true);
+      await Directory('${directory.path}/lib/infrastructure')
+          .create(recursive: true);
     });
 
     await task.step('Creating application file…', callback: () async {
-      await Directory('${directory.path}/lib/application').create(recursive: true);
+      await Directory('${directory.path}/lib/application')
+          .create(recursive: true);
     });
 
     await task.step('Upgrade dependencies…', callback: () {

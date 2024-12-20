@@ -58,19 +58,25 @@ final class MakeCommand implements CliCommandContract {
 
     _filename = (arguments.firstOrNull?.snakeCase ??
         await _commander.ask('Enter the command filename',
-            defaultValue: 'foo_command', validate: (validator) => validator.notEmpty()))!;
+            defaultValue: 'foo_command',
+            validate: (validator) => validator.notEmpty()))!;
 
     final className = _filename.pascalCase;
     commandClass.setClassName(className);
 
-    final libDirectoryHasFolders =
-        Directory('lib').listSync(recursive: true).whereType<Directory>().isNotEmpty;
+    final libDirectoryHasFolders = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<Directory>()
+        .isNotEmpty;
 
     _location = !libDirectoryHasFolders
         ? Directory('lib')
         : await _commander.select<Directory>(
             'Where would you like to create the command ?',
-            options: Directory('src').listSync(recursive: true).whereType<Directory>().toList(),
+            options: Directory('src')
+                .listSync(recursive: true)
+                .whereType<Directory>()
+                .toList(),
             onDisplay: (e) => e.path,
             placeholder: 'search…',
           );
@@ -152,7 +158,10 @@ final class MakeCommand implements CliCommandContract {
     if (_groups.isNotEmpty) {
       final group = await _commander.select<Group>(
         'Select the group (optional)',
-        options: [(label: 'No group', description: 'No group', commands: []), ..._groups],
+        options: [
+          (label: 'No group', description: 'No group', commands: []),
+          ..._groups
+        ],
         onDisplay: (element) => element.label,
         placeholder: 'search a group…',
       );
@@ -209,7 +218,8 @@ final class MakeCommand implements CliCommandContract {
         isAsync: true,
         body: StringBuffer('''print('Hello, World!');'''),
         parameters: [
-          ParameterStruct(name: 'CommandContext', import: 'package:mineral/api.dart'),
+          ParameterStruct(
+              name: 'CommandContext', import: 'package:mineral/api.dart'),
         ],
       ));
     }
@@ -252,12 +262,13 @@ final class MakeCommand implements CliCommandContract {
     }
 
     commandClass
-        .addImplement(
-            ParameterStruct(name: 'CommandDeclaration', import: 'package:mineral/api.dart'))
+        .addImplement(ParameterStruct(
+            name: 'CommandDeclaration', import: 'package:mineral/api.dart'))
         .addMethod(MethodStruct(
           name: 'build',
           returnType: ParameterStruct(
-              name: 'CommandDeclarationBuilder', import: 'package:mineral/api.dart'),
+              name: 'CommandDeclarationBuilder',
+              import: 'package:mineral/api.dart'),
           body: body,
           isOverride: true,
         ));
@@ -271,7 +282,8 @@ final class MakeCommand implements CliCommandContract {
       options: Directory('lib')
           .listSync(recursive: true)
           .whereType<File>()
-          .where((file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))
+          .where(
+              (file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))
           .where((file) => !file.path.endsWith('pubspec.yaml'))
           .where((file) => !file.path.endsWith('analysis_options.yaml'))
           .toList(),
@@ -280,8 +292,8 @@ final class MakeCommand implements CliCommandContract {
     );
 
     commandClass.imports.add('dart:io');
-    commandClass.addImplement(
-        ParameterStruct(name: 'CommandDefinition', import: 'package:mineral/api.dart'));
+    commandClass.addImplement(ParameterStruct(
+        name: 'CommandDefinition', import: 'package:mineral/api.dart'));
 
     final body = StringBuffer()
       ..write('return CommandDefinitionBuilder()')

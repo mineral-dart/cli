@@ -31,14 +31,19 @@ final class MakeProvider implements CliCommandContract {
 
     final className = '${filename.pascalCase}Provider';
 
-    final libDirectoryHasFolders =
-        Directory('lib').listSync(recursive: true).whereType<Directory>().isNotEmpty;
+    final libDirectoryHasFolders = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<Directory>()
+        .isNotEmpty;
 
     final location = !libDirectoryHasFolders
         ? Directory('lib')
         : await _commander.select<Directory>(
             'Where would you like to create the provider ?',
-            options: Directory('lib').listSync(recursive: true).whereType<Directory>().toList(),
+            options: Directory('lib')
+                .listSync(recursive: true)
+                .whereType<Directory>()
+                .toList(),
             onDisplay: (e) => e.path,
             placeholder: 'search…',
           );
@@ -49,7 +54,8 @@ final class MakeProvider implements CliCommandContract {
     });
 
     try {
-      final file = await task.step('Building provider class…', callback: () async {
+      final file =
+          await task.step('Building provider class…', callback: () async {
         final file = File('${location.path}/${filename}_provider.dart');
         await file.writeAsString(formatter.format(eventClass));
 
@@ -76,7 +82,8 @@ final class MakeProvider implements CliCommandContract {
 
     return ClassBuilder()
         .setClassName(className)
-        .setExtends(ParameterStruct(name: 'Provider', import: 'package:mineral/api.dart'))
+        .setExtends(ParameterStruct(
+            name: 'Provider', import: 'package:mineral/api.dart'))
         .addConstructor([constructor])
         .addBodyConstructor(StringBuffer('// _client.register();'))
         .build();

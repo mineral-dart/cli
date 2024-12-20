@@ -36,20 +36,26 @@ final class MakeState implements CliCommandContract {
 
     final className = '${filename.pascalCase}State';
 
-    final libDirectoryHasFolders =
-        Directory('lib').listSync(recursive: true).whereType<Directory>().isNotEmpty;
+    final libDirectoryHasFolders = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<Directory>()
+        .isNotEmpty;
 
     final location = !libDirectoryHasFolders
         ? Directory('lib')
         : await _commander.select<Directory>(
             'Where would you like to create the state ?',
-            options: Directory('lib').listSync(recursive: true).whereType<Directory>().toList(),
+            options: Directory('lib')
+                .listSync(recursive: true)
+                .whereType<Directory>()
+                .toList(),
             onDisplay: (e) => e.path,
             placeholder: 'search…',
           );
 
     final task = await _commander.task();
-    final abstractStateClass = await task.step('Building abstract state class…', callback: () {
+    final abstractStateClass =
+        await task.step('Building abstract state class…', callback: () {
       return _buildAbstractClass(className, type);
     });
 
@@ -99,8 +105,9 @@ final class MakeState implements CliCommandContract {
         .setClassName('${className}Contract')
         .setAbstract(true)
         .setInterface(true)
-        .addImplement(
-            ParameterStruct(name: 'GlobalState<$genericType>', import: 'package:mineral/api.dart'))
+        .addImplement(ParameterStruct(
+            name: 'GlobalState<$genericType>',
+            import: 'package:mineral/api.dart'))
         .build();
   }
 }

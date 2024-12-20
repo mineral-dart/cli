@@ -34,20 +34,26 @@ final class MakeEvent implements CliCommandContract {
     final filename = arguments.firstOrNull?.snakeCase ??
         await _commander.ask<String>(
           'Enter the event name',
-          defaultValue: event.value.toString().replaceAll('Event', '').snakeCase,
+          defaultValue:
+              event.value.toString().replaceAll('Event', '').snakeCase,
           validate: (validator) => validator.notEmpty(),
         );
 
     final className = filename.pascalCase;
 
-    final libDirectoryHasFolders =
-        Directory('lib').listSync(recursive: true).whereType<Directory>().isNotEmpty;
+    final libDirectoryHasFolders = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<Directory>()
+        .isNotEmpty;
 
     final location = !libDirectoryHasFolders
         ? Directory('lib')
         : await _commander.select<Directory>(
             'Where would you like to create the event ?',
-            options: Directory('lib').listSync(recursive: true).whereType<Directory>().toList(),
+            options: Directory('lib')
+                .listSync(recursive: true)
+                .whereType<Directory>()
+                .toList(),
             onDisplay: (e) => e.path,
             placeholder: 'search…',
           );
@@ -74,8 +80,9 @@ final class MakeEvent implements CliCommandContract {
   String _buildClass(String className, events.Event event) {
     return ClassBuilder()
         .setClassName(className)
-        .setExtends(
-            ParameterStruct(name: event.value.toString(), import: 'package:mineral/events.dart'))
+        .setExtends(ParameterStruct(
+            name: event.value.toString(),
+            import: 'package:mineral/events.dart'))
         .addMethod(MethodStruct(
             name: 'handle',
             returnType: ParameterStruct(name: 'Future<void>', import: null),
@@ -83,8 +90,8 @@ final class MakeEvent implements CliCommandContract {
             isAsync: true,
             body: StringBuffer()..write('// Your code here'),
             parameters: event.parameters
-                .map(
-                    (element) => ParameterStruct(name: element, import: 'package:mineral/api.dart'))
+                .map((element) => ParameterStruct(
+                    name: element, import: 'package:mineral/api.dart'))
                 .toList()))
         .build();
   }

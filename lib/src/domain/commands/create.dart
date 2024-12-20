@@ -24,8 +24,8 @@ final class CreateProject implements CliCommandContract {
     final projectName = arguments.firstOrNull?.snakeCase ??
         await commander.ask('Enter the project name :',
             defaultValue: 'mineral_project',
-            validate: (validator) =>
-                validator.notEmpty(message: 'The project name cannot be empty'));
+            validate: (validator) => validator.notEmpty(
+                message: 'The project name cannot be empty'));
 
     final token = await commander.ask(
       'Enter your bot token :',

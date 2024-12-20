@@ -54,14 +54,16 @@ final class ClassBuilder {
   ClassBuilder addProperty(PropertyStruct property) {
     properties.add(property);
 
-    if (property.returnType?.import case final String value when !imports.contains(value)) {
+    if (property.returnType?.import case final String value
+        when !imports.contains(value)) {
       imports.add(value);
     }
 
     return this;
   }
 
-  ClassBuilder addConstructor(List<PropertyStruct> properties, {StringBuffer? body}) {
+  ClassBuilder addConstructor(List<PropertyStruct> properties,
+      {StringBuffer? body}) {
     constructors.add(properties);
 
     for (final property in properties) {
@@ -71,7 +73,8 @@ final class ClassBuilder {
         returnType: property.returnType,
       ));
 
-      if (property.returnType?.import case final String value when !imports.contains(value)) {
+      if (property.returnType?.import case final String value
+          when !imports.contains(value)) {
         imports.add(value);
       }
     }
@@ -137,11 +140,15 @@ final class ClassBuilder {
     }
 
     if (mixins.isNotEmpty) {
-      buffer..write(' with ')..write(mixins.map((element) => element.name).join(', '));
+      buffer
+        ..write(' with ')
+        ..write(mixins.map((element) => element.name).join(', '));
     }
 
     if (implements.isNotEmpty) {
-      buffer..write(' implements ')..write(implements.map((element) => element.name).join(', '));
+      buffer
+        ..write(' implements ')
+        ..write(implements.map((element) => element.name).join(', '));
     }
 
     buffer.write(' {');
@@ -162,11 +169,11 @@ final class ClassBuilder {
       }
 
       if (property.isGetter) {
-        buffer.write('${property.returnType?.name} get ${property.name} => ${property.name};');
+        buffer.write(
+            '${property.returnType?.name} get ${property.name} => ${property.name};');
       } else if (property.isSetter) {
         buffer.write(
-            'set ${property.name}(${property.returnType?.name} value) => ${property
-                .name} = value;');
+            'set ${property.name}(${property.returnType?.name} value) => ${property.name} = value;');
       } else {
         buffer.write('${property.returnType?.name} ${property.name}');
       }
@@ -183,7 +190,8 @@ final class ClassBuilder {
 
     for (final constructor in constructors) {
       buffer.writeln('$className(');
-      buffer.write(constructor.map((property) => 'this.${property.name}').join(', '));
+      buffer.write(
+          constructor.map((property) => 'this.${property.name}').join(', '));
       buffer.write(')');
       if (constructorBody.isEmpty) {
         buffer.write(';');
@@ -209,7 +217,9 @@ final class ClassBuilder {
       buffer.write('${method.returnType.name} ${method.name}(');
 
       final parameters = method.parameters.map((parameter) => parameter.name);
-      buffer..write(parameters.join(', '))..write(')');
+      buffer
+        ..write(parameters.join(', '))
+        ..write(')');
 
       if (method.isAsync) {
         buffer.write(' async');
