@@ -263,7 +263,7 @@ final class MakeCommand implements CliCommandContract {
   Future<void> _buildDefinition() async {
     final sourceFile = await _commander.select<File>(
       'Where would you like to create the command ?',
-      options: Directory('')
+      options: Directory('lib')
           .listSync(recursive: true)
           .whereType<File>()
           .where((file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))

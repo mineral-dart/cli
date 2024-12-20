@@ -9,7 +9,7 @@ final class MineralPubSpecContext {
   });
 
   factory MineralPubSpecContext.fromJson(String root, YamlMap json) {
-    final YamlList commands = json['commands'] ?? [];
+    final YamlList commands = json['commands'] ?? YamlList();
 
     final List<MineralCommand> commandsList = commands.fold([], (acc, element) {
       final command = MineralCommand.fromJson(root, element);

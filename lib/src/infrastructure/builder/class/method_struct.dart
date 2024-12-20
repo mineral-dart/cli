@@ -3,7 +3,7 @@ import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.da
 final class MethodStruct {
   final String name;
   final ParameterStruct returnType;
-  final StringBuffer body;
+  late final StringBuffer? body;
   final List<ParameterStruct> parameters;
   final bool isOverride;
   final bool isAsync;

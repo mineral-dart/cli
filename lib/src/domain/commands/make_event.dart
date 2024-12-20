@@ -42,7 +42,7 @@ final class MakeEvent implements CliCommandContract {
 
     final location = await _commander.select<Directory>(
       'Where would you like to create the event ?',
-      options: Directory('src').listSync(recursive: true).whereType<Directory>().toList(),
+      options: Directory('lib').listSync(recursive: true).whereType<Directory>().toList(),
       onDisplay: (e) => e.path,
       placeholder: 'search…',
     );
