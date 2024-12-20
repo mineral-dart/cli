@@ -8,6 +8,7 @@ final class PropertyStruct {
   final bool isFinal;
   final bool isStatic;
   final ParameterStruct? returnType;
+  final dynamic value;
 
   PropertyStruct({
     required this.name,
@@ -17,5 +18,6 @@ final class PropertyStruct {
     this.isFinal = false,
     this.isStatic = false,
     this.returnType,
+    this.value,
   });
 }

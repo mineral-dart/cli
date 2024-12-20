@@ -1,4 +1,5 @@
 import 'package:mineral_cli/src/domain/commands/make_provider.dart';
+import 'package:mineral_cli/src/domain/commands/make_state.dart';
 import 'package:mineral_cli/src/infrastructure/cli.dart';
 import 'package:mineral_cli/src/domain/commands/create.dart';
 import 'package:mineral_cli/src/domain/commands/help.dart';
@@ -11,6 +12,7 @@ void main(List<String> arguments) async {
     ..registerCommand(MakeEvent())
     ..registerCommand(MakeCommand())
     ..registerCommand(MakeProvider())
+    ..registerCommand(MakeState())
     ..registerCommand(Help());
 
   await cli.handle(arguments);

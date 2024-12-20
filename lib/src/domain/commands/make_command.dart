@@ -63,12 +63,17 @@ final class MakeCommand implements CliCommandContract {
     final className = _filename.pascalCase;
     commandClass.setClassName(className);
 
-    _location = await _commander.select<Directory>(
-      'Where would you like to create the command ?',
-      options: Directory('src').listSync(recursive: true).whereType<Directory>().toList(),
-      onDisplay: (e) => e.path,
-      placeholder: 'search…',
-    );
+    final libDirectoryHasFolders =
+        Directory('lib').listSync(recursive: true).whereType<Directory>().isNotEmpty;
+
+    _location = !libDirectoryHasFolders
+        ? Directory('lib')
+        : await _commander.select<Directory>(
+            'Where would you like to create the command ?',
+            options: Directory('src').listSync(recursive: true).whereType<Directory>().toList(),
+            onDisplay: (e) => e.path,
+            placeholder: 'search…',
+          );
 
     final commandType = await _commander.select<CommandType>(
       'What type of command would you like to create ?',

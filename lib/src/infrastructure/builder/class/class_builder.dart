@@ -3,6 +3,8 @@ import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.da
 import 'package:mineral_cli/src/infrastructure/builder/class/property_struct.dart';
 
 final class ClassBuilder {
+  bool isAbstract = false;
+  bool isInterface = false;
   final List<String> imports = [];
   final List<ParameterStruct> implements = [];
   final List<ParameterStruct> mixins = [];
@@ -16,6 +18,16 @@ final class ClassBuilder {
 
   ClassBuilder setClassName(String className) {
     this.className = className;
+    return this;
+  }
+
+  ClassBuilder setAbstract(bool value) {
+    isAbstract = value;
+    return this;
+  }
+
+  ClassBuilder setInterface(bool value) {
+    isInterface = value;
     return this;
   }
 
@@ -106,7 +118,19 @@ final class ClassBuilder {
     }
 
     buffer.writeln();
-    buffer.write('final class $className');
+    if (isAbstract) {
+      buffer.write('abstract ');
+    }
+
+    if (isInterface) {
+      buffer.write('interface ');
+    }
+
+    if (!(isAbstract && isInterface)) {
+      buffer.write('final ');
+    }
+
+    buffer.write('class $className');
 
     if (extension case ParameterStruct(:final name)) {
       buffer.write(' extends $name');
@@ -144,7 +168,13 @@ final class ClassBuilder {
             'set ${property.name}(${property.returnType?.name} value) => ${property
                 .name} = value;');
       } else {
-        buffer.write('${property.returnType?.name} ${property.name};');
+        buffer.write('${property.returnType?.name} ${property.name}');
+      }
+
+      if (property.value != null) {
+        buffer.write(' = ${property.value};');
+      } else {
+        buffer.write(';');
       }
     }
 
@@ -155,6 +185,9 @@ final class ClassBuilder {
       buffer.writeln('$className(');
       buffer.write(constructor.map((property) => 'this.${property.name}').join(', '));
       buffer.write(')');
+      if (constructorBody.isEmpty) {
+        buffer.write(';');
+      }
     }
 
     if (constructorBody.isNotEmpty) {
@@ -163,8 +196,6 @@ final class ClassBuilder {
         buffer.writeln(constructorBody);
       }
       buffer.write('  }');
-    } else {
-      buffer.write(';');
     }
 
     buffer.writeln();

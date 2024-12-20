@@ -40,12 +40,17 @@ final class MakeEvent implements CliCommandContract {
 
     final className = filename.pascalCase;
 
-    final location = await _commander.select<Directory>(
-      'Where would you like to create the event ?',
-      options: Directory('lib').listSync(recursive: true).whereType<Directory>().toList(),
-      onDisplay: (e) => e.path,
-      placeholder: 'search…',
-    );
+    final libDirectoryHasFolders =
+        Directory('lib').listSync(recursive: true).whereType<Directory>().isNotEmpty;
+
+    final location = !libDirectoryHasFolders
+        ? Directory('lib')
+        : await _commander.select<Directory>(
+            'Where would you like to create the event ?',
+            options: Directory('lib').listSync(recursive: true).whereType<Directory>().toList(),
+            onDisplay: (e) => e.path,
+            placeholder: 'search…',
+          );
 
     final task = await _commander.task();
     final eventClass = await task.step('Building event class…', callback: () {

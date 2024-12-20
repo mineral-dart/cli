@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:commander_ui/commander_ui.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:mineral_cli/src/infrastructure/builder/class/class_builder.dart';
-import 'package:mineral_cli/src/infrastructure/builder/class/method_struct.dart';
 import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
 import 'package:mineral_cli/src/infrastructure/builder/class/property_struct.dart';
 import 'package:mineral_cli/src/infrastructure/contracts/cli_command_contract.dart';
@@ -51,7 +50,7 @@ final class MakeProvider implements CliCommandContract {
 
     try {
       final file = await task.step('Building provider class…', callback: () async {
-        final file = File('${location.path}/$filename.dart');
+        final file = File('${location.path}/${filename}_provider.dart');
         await file.writeAsString(formatter.format(eventClass));
 
         return file;
