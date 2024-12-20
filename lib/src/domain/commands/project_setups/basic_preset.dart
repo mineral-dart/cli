@@ -26,7 +26,7 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
   FutureOr handle(List<String> arguments) async {
     final commander = Commander(level: Level.verbose);
 
-    final task = await commander.task('Creating project…');
+    final task = await commander.task();
 
     final directory = await task.step('Creating project…', callback: () {
       return createBlankProject(_projectName);
@@ -47,17 +47,17 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
     });
 
     await task.step('Creating commands…', callback: () {
-      final commandsDirectory = Directory('${directory.path}/src/commands');
+      final commandsDirectory = Directory('${directory.path}/lib/commands');
       return commandsDirectory.create(recursive: true);
     });
 
     await task.step('Creating events…', callback: () {
-      final eventsDirectory = Directory('${directory.path}/src/events');
+      final eventsDirectory = Directory('${directory.path}/lib/events');
       return eventsDirectory.create(recursive: true);
     });
 
     await task.step('Creating services…', callback: () {
-      final modelsDirectory = Directory('${directory.path}/src/services');
+      final modelsDirectory = Directory('${directory.path}/lib/services');
       return modelsDirectory.create(recursive: true);
     });
 
@@ -76,9 +76,9 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
     final buffer = StringBuffer()
       ..writeln('''import 'package:mineral/api.dart';''')
       ..writeln('''import 'package:mineral_cache/providers/memory.dart';''')
-      ..writeln('''import 'events/ready.dart';''')
+      ..writeln('''import 'package:$_projectName/events/ready.dart';''')
       ..writeln('''Future<void> main(${_useHmr ? '_, port' : ''}) async {''')
-      ..writeln('final client = Client()')
+      ..writeln('final client = ClientBuilder()')
       ..writeln('.setCache((e) => MemoryProvider())');
 
     if (_useHmr) {
@@ -92,7 +92,7 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
       ..writeln('await client.init();')
       ..writeln('}');
 
-    final file = File('$_projectName/src/main.dart');
+    final file = File('$_projectName/bin/main.dart');
     await file.create(recursive: true);
     await file.writeAsString(formatter.format(buffer.toString()));
 
@@ -108,7 +108,7 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
         .setExtends(ParameterStruct(
             name: 'ReadyEvent', import: 'package:mineral/events.dart'))
         .addMixin(ParameterStruct(
-            name: 'InjectLogger', import: 'package:mineral/container.dart'))
+            name: 'Logger', import: 'package:mineral/container.dart'))
         .addMethod(MethodStruct(
             name: 'handle',
             isOverride: true,
@@ -119,7 +119,7 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
             returnType: ParameterStruct(name: 'void'),
             body: buffer));
 
-    final file = File('${directory.path}/src/events/ready.dart');
+    final file = File('${directory.path}/lib/events/ready.dart');
     await file.create(recursive: true);
     await file.writeAsString(formatter.format(classBuilder.build()));
   }

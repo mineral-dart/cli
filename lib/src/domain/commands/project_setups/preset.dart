@@ -19,7 +19,7 @@ mixin CreateProjectTools {
   Future<Directory> createBlankProject(String projectName) async {
     try {
       final projectDir = Directory(projectName);
-      final srcDir = Directory('${projectDir.path}/src');
+      final srcDir = Directory('${projectDir.path}/lib');
 
       await projectDir.create();
       await srcDir.create(recursive: true);
@@ -44,8 +44,8 @@ mixin CreateProjectTools {
       },
       'environment': {'sdk': '\'>=3.3.0 <4.0.0\''},
       'dependencies': {
-        'mineral': '^4.0.0-dev.4',
-        'mineral_cache': '^1.0.0-dev.2',
+        'mineral': '^4.0.0-dev.6',
+        'mineral_cache': '^1.0.0-dev.3',
       },
       'dev_dependencies': {
         'lints': '^2.0.0',

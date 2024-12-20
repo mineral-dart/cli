@@ -9,7 +9,6 @@ import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
 import 'package:commander_ui/commander_ui.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:mineral/utils.dart';
-import 'package:mineral_cli/src/infrastructure/utils.dart';
 import 'package:recase/recase.dart';
 import 'package:yaml/yaml.dart';
 
@@ -58,21 +57,15 @@ final class MakeCommand implements CliCommandContract {
     _screenManager.enter();
 
     _filename = (arguments.firstOrNull?.snakeCase ??
-        await _commander.ask(
-          'Enter the command filename',
-          defaultValue: 'foo_command',
-          validate: notEmptyValidator,
-        ))!;
+        await _commander.ask('Enter the command filename',
+            defaultValue: 'foo_command', validate: (validator) => validator.notEmpty()))!;
 
     final className = _filename.pascalCase;
     commandClass.setClassName(className);
 
     _location = await _commander.select<Directory>(
       'Where would you like to create the command ?',
-      options: Directory('src')
-          .listSync(recursive: true)
-          .whereType<Directory>()
-          .toList(),
+      options: Directory('src').listSync(recursive: true).whereType<Directory>().toList(),
       onDisplay: (e) => e.path,
       placeholder: 'search…',
     );
@@ -91,11 +84,11 @@ final class MakeCommand implements CliCommandContract {
 
   Future<void> _buildDeclaration() async {
     final title = await _commander.ask<String>('Enter the command name',
-        validate: notEmptyValidator);
+        validate: (validator) => validator.notEmpty());
 
     final description = await _commander.ask<String>(
       'Enter the description',
-      validate: notEmptyValidator,
+      validate: (validator) => validator.notEmpty(),
     );
 
     _commandName = title.pascalCase;
@@ -126,14 +119,14 @@ final class MakeCommand implements CliCommandContract {
   Future<void> _addGroup() async {
     final title = await _commander.ask(
       'Enter the group name',
-      validate: notEmptyValidator,
+      validate: (validator) => validator.notEmpty(),
     );
 
     stdout.writeln();
 
     final description = await _commander.ask(
       'Enter the group description',
-      validate: notEmptyValidator,
+      validate: (validator) => validator.notEmpty(),
     );
 
     _groups.add((label: title!, description: description!, commands: []));
@@ -143,21 +136,18 @@ final class MakeCommand implements CliCommandContract {
   Future<void> _addSubCommand() async {
     final name = await _commander.ask(
       'Enter the subcommand name',
-      validate: notEmptyValidator,
+      validate: (validator) => validator.notEmpty(),
     );
 
     final description = await _commander.ask(
       'Enter the subcommand description',
-      validate: notEmptyValidator,
+      validate: (validator) => validator.notEmpty(),
     );
 
     if (_groups.isNotEmpty) {
       final group = await _commander.select<Group>(
         'Select the group (optional)',
-        options: [
-          (label: 'No group', description: 'No group', commands: []),
-          ..._groups
-        ],
+        options: [(label: 'No group', description: 'No group', commands: []), ..._groups],
         onDisplay: (element) => element.label,
         placeholder: 'search a group…',
       );
@@ -214,8 +204,7 @@ final class MakeCommand implements CliCommandContract {
         isAsync: true,
         body: StringBuffer('''print('Hello, World!');'''),
         parameters: [
-          ParameterStruct(
-              name: 'CommandContext', import: 'package:mineral/api.dart'),
+          ParameterStruct(name: 'CommandContext', import: 'package:mineral/api.dart'),
         ],
       ));
     }
@@ -258,13 +247,12 @@ final class MakeCommand implements CliCommandContract {
     }
 
     commandClass
-        .addImplement(ParameterStruct(
-            name: 'CommandDeclaration', import: 'package:mineral/api.dart'))
+        .addImplement(
+            ParameterStruct(name: 'CommandDeclaration', import: 'package:mineral/api.dart'))
         .addMethod(MethodStruct(
           name: 'build',
           returnType: ParameterStruct(
-              name: 'CommandDeclarationBuilder',
-              import: 'package:mineral/api.dart'),
+              name: 'CommandDeclarationBuilder', import: 'package:mineral/api.dart'),
           body: body,
           isOverride: true,
         ));
@@ -278,8 +266,7 @@ final class MakeCommand implements CliCommandContract {
       options: Directory('')
           .listSync(recursive: true)
           .whereType<File>()
-          .where(
-              (file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))
+          .where((file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))
           .where((file) => !file.path.endsWith('pubspec.yaml'))
           .where((file) => !file.path.endsWith('analysis_options.yaml'))
           .toList(),
@@ -288,8 +275,8 @@ final class MakeCommand implements CliCommandContract {
     );
 
     commandClass.imports.add('dart:io');
-    commandClass.addImplement(ParameterStruct(
-        name: 'CommandDefinition', import: 'package:mineral/api.dart'));
+    commandClass.addImplement(
+        ParameterStruct(name: 'CommandDefinition', import: 'package:mineral/api.dart'));
 
     final body = StringBuffer()
       ..write('return CommandDefinitionBuilder()')
@@ -329,7 +316,7 @@ final class MakeCommand implements CliCommandContract {
     final formatter = DartFormatter(pageWidth: 150);
 
     _screenManager.leave();
-    final task = await _commander.task('Creating file…');
+    final task = await _commander.task();
     task.step('Creating file…');
 
     try {

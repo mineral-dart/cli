@@ -22,7 +22,7 @@ final class SlimPreset with CreateProjectTools implements PresetContract {
   FutureOr handle(List<String> arguments) async {
     final commander = Commander(level: Level.verbose);
 
-    final task = await commander.task('Creating project…');
+    final task = await commander.task();
 
     final directory = await task.step('Creating project…', callback: () {
       return createBlankProject(_projectName);
@@ -54,7 +54,7 @@ final class SlimPreset with CreateProjectTools implements PresetContract {
       ..writeln('''import 'package:mineral/api.dart';''')
       ..writeln('''import 'package:mineral_cache/providers/memory.dart';''')
       ..writeln('''Future<void> main(${_useHmr ? '_, port' : ''}) async {''')
-      ..writeln('final client = Client()')
+      ..writeln('final client = ClientBuilder()')
       ..writeln('.setCache((e) => MemoryProvider())');
 
     if (_useHmr) {
@@ -72,7 +72,7 @@ final class SlimPreset with CreateProjectTools implements PresetContract {
       ..writeln('await client.init();')
       ..writeln('}');
 
-    final file = File('$_projectName/src/main.dart');
+    final file = File('$_projectName/bin/main.dart');
     await file.create(recursive: true);
     await file.writeAsString(formatter.format(buffer.toString()));
 

@@ -74,10 +74,10 @@ packages:
     dependency: "direct main"
     description:
       name: commander_ui
-      sha256: "5e7111c02895b957c91bd201ff7c7e3410aa24619443208f55c3af581509957d"
+      sha256: ec706d670777d990055d7941b2835e1f71984bebc42fdbdd5828459e98dfca8b
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.2"
+    version: "2.4.0"
   convert:
     dependency: transitive
     description:
