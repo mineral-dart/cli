@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:mineral_cli/src/domain/commands/project_setups/hexagonal_preset.dart';
 import 'package:mineral_cli/src/infrastructure/contracts/cli_command_contract.dart';
 import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
 import 'package:mineral_cli/src/domain/commands/project_setups/basic_preset.dart';
@@ -44,8 +45,9 @@ final class CreateProject implements CliCommandContract {
     );
 
     final List<PresetContract> presets = [
-      SlimPreset(projectName!, useHmr, token!, logLevel.name.toLowerCase()),
+      SlimPreset(projectName!, useHmr, token, logLevel.name.toLowerCase()),
       BasicPreset(projectName, useHmr, token, logLevel.name.toLowerCase()),
+      HexagonalPreset(projectName, useHmr, token, logLevel.name.toLowerCase()),
     ];
 
     final preset = await commander.select<PresetContract>(
