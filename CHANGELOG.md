@@ -1,3 +1,11 @@
+## 2.0.0-dev.4
+- Upgrade `commander_ui` dependency version
+- Prevent non-existing directory when you should select one
+- Migrate preset to new architecture folder structure
+- Implement hexagonal architecture preset
+- Implement `make:provider` command
+- Implement `make:state` command
+
 ## 2.0.0-dev.3
 - Change `mineral_cli` wording to `main` in presets
 - Prevent fatal error when `mineral.commands` is empty in `pubspec.yaml`

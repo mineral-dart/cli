@@ -1,6 +1,6 @@
 name: mineral_cli
 description: The official Mineral framework command line interface.
-version: 2.0.0-dev.3
+version: 2.0.0-dev.4
 repository: https://github.com/mineral-dart/cli
 
 executables:
