@@ -1,3 +1,6 @@
+## 2.0.0-dev.5
+- Upgrade `core` dependency to `4.0.0-dev.7`
+
 ## 2.0.0-dev.4
 - Upgrade `commander_ui` dependency version
 - Prevent non-existing directory when you should select one
