@@ -1,3 +1,6 @@
+## 2.0.0-dev.6
+- Upgrade `core` dependency to `4.0.0-dev.9`
+
 ## 2.0.0-dev.5
 - Upgrade `core` dependency to `4.0.0-dev.7`
 

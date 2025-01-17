@@ -73,7 +73,7 @@ final class MakeCommand implements CliCommandContract {
         ? Directory('lib')
         : await _commander.select<Directory>(
             'Where would you like to create the command ?',
-            options: Directory('src')
+            options: Directory('lib')
                 .listSync(recursive: true)
                 .whereType<Directory>()
                 .toList(),
