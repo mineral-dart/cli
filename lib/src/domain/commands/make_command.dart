@@ -171,6 +171,8 @@ final class MakeCommand implements CliCommandContract {
       } else {
         _subCommands.add((label: name!, description: description!));
       }
+    } else {
+      _subCommands.add((label: name!, description: description!));
     }
 
     await _drawMenu();
@@ -183,7 +185,7 @@ final class MakeCommand implements CliCommandContract {
       ..write('return CommandDeclarationBuilder()')
       ..write('''..setName('$_commandName')''')
       ..write('''..setDescription('$_commandDescription')''')
-      ..write(_subCommands.isEmpty ? '..setHandler(handle);' : '');
+      ..write(_subCommands.isEmpty ? '..setHandle(handle);' : '');
 
     for (final subCommand in _subCommands) {
       final index = _subCommands.indexOf(subCommand);
