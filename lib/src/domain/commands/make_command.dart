@@ -279,16 +279,23 @@ final class MakeCommand implements CliCommandContract {
   }
 
   Future<void> _buildDefinition() async {
+    final sourceFiles =  Directory('lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where(
+            (file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))
+        .where((file) => !file.path.endsWith('pubspec.yaml'))
+        .where((file) => !file.path.endsWith('analysis_options.yaml'))
+        .toList();
+
+    if (sourceFiles.isEmpty) {
+      _commander.error('No source file found in the lib directory');
+      return;
+    }
+
     final sourceFile = await _commander.select<File>(
-      'Where would you like to create the command ?',
-      options: Directory('lib')
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where(
-              (file) => file.path.endsWith('yaml') || file.path.endsWith('yml'))
-          .where((file) => !file.path.endsWith('pubspec.yaml'))
-          .where((file) => !file.path.endsWith('analysis_options.yaml'))
-          .toList(),
+      'What is the source file for your command ?',
+      options: sourceFiles,
       onDisplay: (e) => e.path,
       placeholder: 'search…',
     );
