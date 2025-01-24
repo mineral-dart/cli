@@ -67,8 +67,8 @@ mixin CreateProjectTools {
 
     final baseBuffer = StringBuffer()
       ..writeln('DART_ENV=development')
-      ..writeln('HTTP_VERSION=10')
-      ..writeln('WSS_VERSION=10')
+      ..writeln('DISCORD_REST_API_VERSION=10')
+      ..writeln('DISCORD_WS_VERSION=10')
       ..writeln('INTENT=3276799')
       ..writeln('LOG_LEVEL=$logLevel');
 
