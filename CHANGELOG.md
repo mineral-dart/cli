@@ -1,3 +1,8 @@
+## 2.0.0-dev.7
+- Add `SubCommand` serialization
+- Prevent errors when no command definition was found
+- Modify environment variables names
+
 ## 2.0.0-dev.6
 - Upgrade `core` dependency to `4.0.0-dev.9`
 
