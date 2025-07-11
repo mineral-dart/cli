@@ -1,22 +1,22 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:mineral_cli/src/domain/commands/project_setups/preset.dart';
 import 'package:commander_ui/commander_ui.dart';
+import 'package:mineral_cli/src/application/commands/project_setups/preset.dart';
 
-final class SlimPreset with CreateProjectTools implements PresetContract {
+final class HexagonalPreset with CreateProjectTools implements PresetContract {
   @override
-  String get name => 'Slim';
+  String get name => 'Hexagonal';
 
   @override
-  String get description => 'A slim preset for your project setup';
+  String get description => 'A hexagonal preset for your project setup';
 
   final String _projectName;
   final bool _useHmr;
   final String _token;
   final String _logLevel;
 
-  SlimPreset(this._projectName, this._useHmr, this._token, this._logLevel);
+  HexagonalPreset(this._projectName, this._useHmr, this._token, this._logLevel);
 
   @override
   FutureOr handle(List<String> arguments) async {
@@ -38,12 +38,26 @@ final class SlimPreset with CreateProjectTools implements PresetContract {
       return createGitignore(directory);
     });
 
+    await task.step('Creating domain file…', callback: () async {
+      await Directory('${directory.path}/lib/domain').create(recursive: true);
+    });
+
+    await task.step('Creating infrastructure file…', callback: () async {
+      await Directory('${directory.path}/lib/infrastructure')
+          .create(recursive: true);
+    });
+
+    await task.step('Creating application file…', callback: () async {
+      await Directory('${directory.path}/lib/application')
+          .create(recursive: true);
+    });
+
     await task.step('Upgrade dependencies…', callback: () {
       return runCommand('dart', ['pub', 'upgrade'], rootDir: directory);
     });
 
     await task.step('Fetching dependencies…', callback: () {
-      return runCommand('dart', ['pub', 'get']);
+      return runCommand('dart', ['pub', 'get'], rootDir: directory);
     });
 
     task.success('Project created !');
@@ -60,9 +74,9 @@ final class SlimPreset with CreateProjectTools implements PresetContract {
     if (_useHmr) {
       buffer.writeln('.setHmrDevPort(port)');
     }
+    buffer.write('.build();');
 
     buffer
-      ..write('.build();')
       ..writeln('''client.events.ready((Bot bot) {''')
       ..writeln('''client.logger.info('\${bot.username} is ready ! 🚀');''')
       ..writeln('});');

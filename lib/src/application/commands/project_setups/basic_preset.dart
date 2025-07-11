@@ -1,12 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:mineral_cli/src/infrastructure/builder/class/class_builder.dart';
-import 'package:mineral_cli/src/infrastructure/builder/class/method_struct.dart';
-import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
-import 'package:mineral_cli/src/domain/commands/project_setups/preset.dart';
 import 'package:commander_ui/commander_ui.dart';
-import 'package:mineral/events.dart' as events;
+import 'package:mineral_cli/src/application/commands/project_setups/preset.dart';
 
 final class BasicPreset with CreateProjectTools implements PresetContract {
   @override
@@ -100,27 +96,27 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
   }
 
   Future<void> createReadyEvent(Directory directory) async {
-    final buffer = StringBuffer()
-      ..writeln('''logger.info('\${bot.username} is ready ! 🚀');''');
+    // final buffer = StringBuffer()
+    //   ..writeln('''logger.info('\${bot.username} is ready ! 🚀');''');
 
-    final classBuilder = ClassBuilder()
-        .setClassName('Ready')
-        .setExtends(ParameterStruct(
-            name: 'ReadyEvent', import: 'package:mineral/events.dart'))
-        .addMixin(ParameterStruct(
-            name: 'Logger', import: 'package:mineral/container.dart'))
-        .addMethod(MethodStruct(
-            name: 'handle',
-            isOverride: true,
-            parameters: events.Event.ready.parameters
-                .map((parameter) => ParameterStruct(
-                    name: parameter, import: 'package:mineral/api.dart'))
-                .toList(),
-            returnType: ParameterStruct(name: 'void'),
-            body: buffer));
+    // final classBuilder = ClassBuilder()
+    //     .setClassName('Ready')
+    //     .setExtends(ParameterStruct(
+    //         name: 'ReadyEvent', import: 'package:mineral/events.dart'))
+    //     .addMixin(ParameterStruct(
+    //         name: 'Logger', import: 'package:mineral/container.dart'))
+    //     .addMethod(MethodStruct(
+    //         name: 'handle',
+    //         isOverride: true,
+    //         parameters: events.Event.ready.parameters
+    //             .map((parameter) => ParameterStruct(
+    //                 name: parameter, import: 'package:mineral/api.dart'))
+    //             .toList(),
+    //         returnType: ParameterStruct(name: 'void'),
+    //         body: buffer));
 
-    final file = File('${directory.path}/lib/events/ready.dart');
-    await file.create(recursive: true);
-    await file.writeAsString(formatter.format(classBuilder.build()));
+    // final file = File('${directory.path}/lib/events/ready.dart');
+    // await file.create(recursive: true);
+    // await file.writeAsString(formatter.format(classBuilder.build()));
   }
 }

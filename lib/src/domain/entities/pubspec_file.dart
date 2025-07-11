@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:mineral_cli/src/infrastructure/entities/mineral_pubspec_context.dart';
-import 'package:mineral_cli/src/infrastructure/entities/pubspec_dependency.dart';
+import 'package:mineral_cli/src/domain/entities/mineral_pubspec_context.dart';
+import 'package:mineral_cli/src/domain/entities/pubspec_dependency.dart';
 import 'package:path/path.dart';
 
 final class PubspecFile {

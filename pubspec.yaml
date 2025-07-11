@@ -12,11 +12,13 @@ environment:
 # Add regular dependencies here.
 dependencies:
   args: ^2.4.2
+  code_builder: ^4.10.1
   collection: ^1.19.0
   commander_ui: ^2.4.0
   dart_style: ^2.3.7
   mansion: ^0.1.0
-  mineral: ^4.0.0-dev.9
+  mineral:
+    path: ../core
   path: ^1.9.0
   recase: ^4.1.0
   yaml: ^3.1.2

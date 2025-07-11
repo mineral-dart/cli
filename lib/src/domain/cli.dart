@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:mineral_cli/src/infrastructure/contracts/cli_command_contract.dart';
-import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
-import 'package:mineral_cli/src/infrastructure/entities/cli_context_type.dart';
-import 'package:mineral_cli/src/infrastructure/entities/pubspec_file.dart';
+import 'package:mineral_cli/src/domain/contracts/cli_command_contract.dart';
+import 'package:mineral_cli/src/domain/entities/cli_command.dart';
+import 'package:mineral_cli/src/domain/entities/cli_context_type.dart';
+import 'package:mineral_cli/src/domain/entities/pubspec_file.dart';
 import 'package:collection/collection.dart';
 import 'package:mineral/utils.dart';
 import 'package:yaml/yaml.dart';

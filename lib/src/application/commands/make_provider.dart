@@ -3,15 +3,17 @@ import 'dart:io';
 
 import 'package:commander_ui/commander_ui.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:mineral_cli/src/infrastructure/builder/class/class_builder.dart';
-import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
-import 'package:mineral_cli/src/infrastructure/builder/class/property_struct.dart';
-import 'package:mineral_cli/src/infrastructure/contracts/cli_command_contract.dart';
-import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
+import 'package:mineral_cli/mineral_cli.dart';
+import 'package:mineral_cli/src/domain/contracts/cli_command_contract.dart';
+import 'package:mineral_cli/src/domain/entities/cli_command.dart';
 import 'package:recase/recase.dart';
 
 final class MakeProvider implements CliCommandContract {
-  final _commander = Commander(level: Level.verbose);
+  final _commander = Commander();
+
+  final emitter = DartEmitter();
+  final formatter = DartFormatter(
+      pageWidth: 150, languageVersion: DartFormatter.latestLanguageVersion);
 
   @override
   String get name => 'make:provider';
@@ -49,15 +51,30 @@ final class MakeProvider implements CliCommandContract {
           );
 
     final task = await _commander.task();
-    final eventClass = await task.step('Building event class…', callback: () {
-      return _buildClass(className);
+    final clazz = await task.step('Building event class…', callback: () {
+      return Library((library) => library
+        ..body.addAll([
+          Code('import \'package:mineral/api.dart\';'),
+          Class((clazz) => clazz
+            ..name = className.pascalCase
+            ..extend = refer('Provider', 'package:mineral/api.dart')
+            ..constructors.add(Constructor((constructor) => constructor
+              ..body = Code('// client.register(...);\n')
+              ..requiredParameters.addAll([
+                Parameter((parameter) => parameter
+                  ..name = 'client'
+                  ..type = refer('Client', 'package:mineral/api.dart'))
+              ]))))
+        ]));
     });
 
     try {
       final file =
           await task.step('Building provider class…', callback: () async {
         final file = File('${location.path}/${filename}_provider.dart');
-        await file.writeAsString(formatter.format(eventClass));
+        print(clazz.accept(emitter).toString());
+        final content = formatter.format(clazz.accept(emitter).toString());
+        await file.writeAsString(content);
 
         return file;
       });
@@ -67,25 +84,5 @@ final class MakeProvider implements CliCommandContract {
     } catch (error) {
       task.error('An error occurred while creating the file: $error');
     }
-  }
-
-  String _buildClass(String className) {
-    final constructor = PropertyStruct(
-      name: '_client',
-      returnType: ParameterStruct(
-        name: 'Client',
-        import: 'package:mineral/api.dart',
-      ),
-      isFinal: true,
-      isOverride: true,
-    );
-
-    return ClassBuilder()
-        .setClassName(className)
-        .setExtends(ParameterStruct(
-            name: 'Provider', import: 'package:mineral/api.dart'))
-        .addConstructor([constructor])
-        .addBodyConstructor(StringBuffer('// _client.register();'))
-        .build();
   }
 }

@@ -1,18 +1,19 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:code_builder/code_builder.dart';
 import 'package:commander_ui/commander_ui.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:mineral/events.dart' as events;
-import 'package:mineral_cli/src/infrastructure/builder/class/class_builder.dart';
-import 'package:mineral_cli/src/infrastructure/builder/class/method_struct.dart';
-import 'package:mineral_cli/src/infrastructure/builder/class/parameter_struct.dart';
-import 'package:mineral_cli/src/infrastructure/contracts/cli_command_contract.dart';
-import 'package:mineral_cli/src/infrastructure/entities/cli_command.dart';
+import 'package:mineral_cli/src/domain/contracts/cli_command_contract.dart';
+import 'package:mineral_cli/src/domain/entities/cli_command.dart';
 import 'package:recase/recase.dart';
 
 final class MakeEvent implements CliCommandContract {
-  final _commander = Commander(level: Level.verbose);
+  final _commander = Commander();
+  final _emitter = DartEmitter();
+  final _formatter = DartFormatter(
+      pageWidth: 150, languageVersion: DartFormatter.latestLanguageVersion);
 
   @override
   String get name => 'make:event';
@@ -22,8 +23,6 @@ final class MakeEvent implements CliCommandContract {
 
   @override
   Future<void> handle(List<MineralCommand> _, List<String> arguments) async {
-    final formatter = DartFormatter(pageWidth: 150);
-
     final event = await _commander.select<events.Event>(
       'Choose your event to make it !',
       options: events.Event.values,
@@ -59,40 +58,42 @@ final class MakeEvent implements CliCommandContract {
           );
 
     final task = await _commander.task();
-    final eventClass = await task.step('Building event class…', callback: () {
-      return _buildClass(className, event);
+
+    final clazz = await task.step('Building event class…', callback: () {
+      return Library((librairy) => librairy
+        ..body.addAll([
+          Code('import \'package:mineral/api.dart\';'),
+          Code('import \'package:mineral/events.dart\';'),
+          Class((clazz) => clazz
+            ..name = className.pascalCase
+            ..extend =
+                refer(event.value.toString(), 'package:mineral/events.dart')
+            ..methods.add(Method((method) => method
+              ..name = 'handle'
+              ..modifier = MethodModifier.async
+              ..annotations.add(refer('override'))
+              ..body = Code('// Your code here\nprint(\'Hello, World!\');')
+              ..returns = refer('Future<void>')
+              ..requiredParameters.addAll(event.parameters.map((element) {
+                final [type, name] = element;
+                return Parameter((parameter) => parameter
+                  ..name = name
+                  ..type = refer(type, 'package:mineral/api.dart'));
+              })))))
+        ]));
     });
 
     try {
       final file = await task.step('Building event class…', callback: () async {
         final file = File('${location.path}/$filename.dart');
-        await file.writeAsString(formatter.format(eventClass));
+        final content = _formatter.format(clazz.accept(_emitter).toString());
 
-        return file;
+        return file.writeAsString(content);
       });
 
       task.success('Event created successfully in ${file.path}');
     } catch (error) {
       task.error('An error occurred while creating the file: $error');
     }
-  }
-
-  String _buildClass(String className, events.Event event) {
-    return ClassBuilder()
-        .setClassName(className)
-        .setExtends(ParameterStruct(
-            name: event.value.toString(),
-            import: 'package:mineral/events.dart'))
-        .addMethod(MethodStruct(
-            name: 'handle',
-            returnType: ParameterStruct(name: 'Future<void>', import: null),
-            isOverride: true,
-            isAsync: true,
-            body: StringBuffer()..write('// Your code here'),
-            parameters: event.parameters
-                .map((element) => ParameterStruct(
-                    name: element, import: 'package:mineral/api.dart'))
-                .toList()))
-        .build();
   }
 }
