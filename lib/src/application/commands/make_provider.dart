@@ -72,7 +72,6 @@ final class MakeProvider implements CliCommandContract {
       final file =
           await task.step('Building provider class…', callback: () async {
         final file = File('${location.path}/${filename}_provider.dart');
-        print(clazz.accept(emitter).toString());
         final content = formatter.format(clazz.accept(emitter).toString());
         await file.writeAsString(content);
 
