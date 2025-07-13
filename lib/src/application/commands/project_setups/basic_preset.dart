@@ -1,10 +1,17 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:code_builder/code_builder.dart';
 import 'package:commander_ui/commander_ui.dart';
+import 'package:dart_style/dart_style.dart';
+import 'package:mineral/events.dart' as events;
 import 'package:mineral_cli/src/application/commands/project_setups/preset.dart';
 
 final class BasicPreset with CreateProjectTools implements PresetContract {
+  final _emitter = DartEmitter();
+  final _formatter = DartFormatter(
+      pageWidth: 150, languageVersion: DartFormatter.latestLanguageVersion);
+
   @override
   String get name => 'Basic';
 
@@ -28,7 +35,7 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
       return createBlankProject(_projectName);
     });
 
-    await task.step('Creating main file…', callback: () => _createMainFile());
+    await task.step('Creating main file…', callback: buildMain);
 
     await task.step('Creating environment file…', callback: () {
       return createEnvironmentFile(directory, _useHmr, _token, _logLevel);
@@ -39,7 +46,7 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
     });
 
     await task.step('Creating ready file…', callback: () {
-      return createReadyEvent(directory);
+      return buildReadyEvent(directory);
     });
 
     await task.step('Creating commands…', callback: () {
@@ -68,55 +75,68 @@ final class BasicPreset with CreateProjectTools implements PresetContract {
     task.success('Project created !');
   }
 
-  Future<void> _createMainFile() async {
+  Future<void> buildMain() async {
     final buffer = StringBuffer()
       ..writeln('''import 'package:mineral/api.dart';''')
       ..writeln('''import 'package:mineral_cache/providers/memory.dart';''')
       ..writeln('''import 'package:$_projectName/events/ready.dart';''')
+      ..writeln()
       ..writeln('''Future<void> main(${_useHmr ? '_, port' : ''}) async {''')
-      ..writeln('final client = ClientBuilder()')
-      ..writeln('.setCache((e) => MemoryProvider())');
+      ..writeln('  final client = ClientBuilder()')
+      ..writeln('    .setCache(MemoryProvider.new)');
 
     if (_useHmr) {
-      buffer.writeln('.setHmrDevPort(port)');
+      buffer.writeln('    .setHmrDevPort(port)');
     }
-    buffer.write('.build();');
 
     buffer
+      ..writeln('    .build();')
       ..writeln()
-      ..writeln('client.register(Ready.new);')
-      ..writeln('await client.init();')
+      ..writeln('  client.register(Ready.new);')
+      ..writeln()
+      ..writeln('  await client.init();')
       ..writeln('}');
-
     final file = File('$_projectName/bin/main.dart');
     await file.create(recursive: true);
-    await file.writeAsString(formatter.format(buffer.toString()));
 
+    await file.writeAsString(buffer.toString());
     await createPubspec(Directory(_projectName), this);
   }
 
-  Future<void> createReadyEvent(Directory directory) async {
-    // final buffer = StringBuffer()
-    //   ..writeln('''logger.info('\${bot.username} is ready ! 🚀');''');
+  Future<void> buildReadyEvent(Directory directory) async {
+    final buffer =
+        StringBuffer('''logger.info('\${bot.username} is ready ! 🚀');''');
 
-    // final classBuilder = ClassBuilder()
-    //     .setClassName('Ready')
-    //     .setExtends(ParameterStruct(
-    //         name: 'ReadyEvent', import: 'package:mineral/events.dart'))
-    //     .addMixin(ParameterStruct(
-    //         name: 'Logger', import: 'package:mineral/container.dart'))
-    //     .addMethod(MethodStruct(
-    //         name: 'handle',
-    //         isOverride: true,
-    //         parameters: events.Event.ready.parameters
-    //             .map((parameter) => ParameterStruct(
-    //                 name: parameter, import: 'package:mineral/api.dart'))
-    //             .toList(),
-    //         returnType: ParameterStruct(name: 'void'),
-    //         body: buffer));
+    final library = Library((library) => library
+      ..body.addAll([
+        Code('''import 'package:mineral/api.dart';'''),
+        Code('''import 'package:mineral/events.dart';'''),
+        Code('''import 'package:mineral/container.dart';'''),
+        Class((clazz) => clazz
+          ..name = 'Ready'
+          ..modifier = ClassModifier.final$
+          ..extend = refer('ReadyEvent', 'package:mineral/events.dart')
+          ..mixins.add(refer('Logger', 'package:mineral/container.dart'))
+          ..methods.addAll([
+            Method((method) => method
+              ..name = 'handle'
+              ..returns = refer('Future<void>')
+              ..annotations.add(refer('override'))
+              ..modifier = MethodModifier.async
+              ..requiredParameters.addAll([
+                for (final element in events.Event.ready.parameters)
+                  Parameter((parameter) => parameter
+                    ..name = element.last
+                    ..type = refer(element.first, 'package:mineral/api.dart'))
+              ])
+              ..body = Code(buffer.toString()))
+          ]))
+      ]));
 
-    // final file = File('${directory.path}/lib/events/ready.dart');
-    // await file.create(recursive: true);
-    // await file.writeAsString(formatter.format(classBuilder.build()));
+    final file = File('${directory.path}/lib/events/ready.dart');
+    await file.create(recursive: true);
+    final content = _formatter.format(library.accept(_emitter).toString());
+
+    await file.writeAsString(content);
   }
 }

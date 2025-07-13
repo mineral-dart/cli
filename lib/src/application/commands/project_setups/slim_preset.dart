@@ -53,28 +53,28 @@ final class SlimPreset with CreateProjectTools implements PresetContract {
     final buffer = StringBuffer()
       ..writeln('''import 'package:mineral/api.dart';''')
       ..writeln('''import 'package:mineral_cache/providers/memory.dart';''')
+      ..writeln()
       ..writeln('''Future<void> main(${_useHmr ? '_, port' : ''}) async {''')
-      ..writeln('final client = ClientBuilder()')
-      ..writeln('.setCache((e) => MemoryProvider())');
+      ..writeln('  final client = ClientBuilder()')
+      ..writeln('    .setCache(MemoryProvider.new)');
 
     if (_useHmr) {
-      buffer.writeln('.setHmrDevPort(port)');
+      buffer.writeln('    .setHmrDevPort(port)');
     }
 
     buffer
-      ..write('.build();')
-      ..writeln('''client.events.ready((Bot bot) {''')
-      ..writeln('''client.logger.info('\${bot.username} is ready ! 🚀');''')
-      ..writeln('});');
-
-    buffer
+      ..writeln('    .build();')
       ..writeln()
-      ..writeln('await client.init();')
+      ..writeln('''  client.events.ready((Bot bot) {''')
+      ..writeln('''    client.logger.info('\${bot.username} is ready ! 🚀');''')
+      ..writeln('  });')
+      ..writeln()
+      ..writeln('  await client.init();')
       ..writeln('}');
 
     final file = File('$_projectName/bin/main.dart');
     await file.create(recursive: true);
-    await file.writeAsString(formatter.format(buffer.toString()));
+    await file.writeAsString(buffer.toString());
 
     await createPubspec(Directory(_projectName), this);
   }

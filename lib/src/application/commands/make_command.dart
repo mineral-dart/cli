@@ -369,7 +369,7 @@ final class MakeCommand implements CliCommandContract {
 
       final example = Library((library) => library
         ..body.addAll([
-          Code('// Please register your state in the client\n'),
+          Code('// Please register your command in the client\n'),
           Method((method) => method
             ..name = 'main'
             ..returns = refer('void')

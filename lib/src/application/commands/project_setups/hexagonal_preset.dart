@@ -1,10 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:code_builder/code_builder.dart';
 import 'package:commander_ui/commander_ui.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:mineral_cli/src/application/commands/project_setups/preset.dart';
 
 final class HexagonalPreset with CreateProjectTools implements PresetContract {
+  final _emitter = DartEmitter();
+  final _formatter = DartFormatter(
+      pageWidth: 40, languageVersion: DartFormatter.latestLanguageVersion);
+
   @override
   String get name => 'Hexagonal';
 
@@ -28,7 +34,7 @@ final class HexagonalPreset with CreateProjectTools implements PresetContract {
       return createBlankProject(_projectName);
     });
 
-    await task.step('Creating main file…', callback: () => _createMainFile());
+    await task.step('Creating main file…', callback: buildMain);
 
     await task.step('Creating environment file…', callback: () {
       return createEnvironmentFile(directory, _useHmr, _token, _logLevel);
@@ -63,33 +69,33 @@ final class HexagonalPreset with CreateProjectTools implements PresetContract {
     task.success('Project created !');
   }
 
-  Future<void> _createMainFile() async {
+  Future<void> buildMain() async {
     final buffer = StringBuffer()
       ..writeln('''import 'package:mineral/api.dart';''')
       ..writeln('''import 'package:mineral_cache/providers/memory.dart';''')
+      ..writeln()
       ..writeln('''Future<void> main(${_useHmr ? '_, port' : ''}) async {''')
-      ..writeln('final client = ClientBuilder()')
-      ..writeln('.setCache((e) => MemoryProvider())');
+      ..writeln('  final client = ClientBuilder()')
+      ..writeln('    .setCache(MemoryProvider.new)');
 
     if (_useHmr) {
-      buffer.writeln('.setHmrDevPort(port)');
+      buffer.writeln('    .setHmrDevPort(port)');
     }
-    buffer.write('.build();');
 
     buffer
-      ..writeln('''client.events.ready((Bot bot) {''')
-      ..writeln('''client.logger.info('\${bot.username} is ready ! 🚀');''')
-      ..writeln('});');
-
-    buffer
+      ..writeln('    .build();')
       ..writeln()
-      ..writeln('await client.init();')
+      ..writeln('''  client.events.ready((Bot bot) {''')
+      ..writeln('''    client.logger.info('\${bot.username} is ready ! 🚀');''')
+      ..writeln('  });')
+      ..writeln()
+      ..writeln('  await client.init();')
       ..writeln('}');
 
     final file = File('$_projectName/bin/main.dart');
     await file.create(recursive: true);
-    await file.writeAsString(formatter.format(buffer.toString()));
 
+    await file.writeAsString(buffer.toString());
     await createPubspec(Directory(_projectName), this);
   }
 }
