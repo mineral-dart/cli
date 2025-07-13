@@ -1,16 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:code_builder/code_builder.dart';
 import 'package:commander_ui/commander_ui.dart';
-import 'package:dart_style/dart_style.dart';
 import 'package:mineral_cli/src/application/commands/project_setups/preset.dart';
 
 final class HexagonalPreset with CreateProjectTools implements PresetContract {
-  final _emitter = DartEmitter();
-  final _formatter = DartFormatter(
-      pageWidth: 40, languageVersion: DartFormatter.latestLanguageVersion);
-
   @override
   String get name => 'Hexagonal';
 
