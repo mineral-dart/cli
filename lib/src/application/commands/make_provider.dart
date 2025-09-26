@@ -23,7 +23,7 @@ final class MakeProvider implements CliCommandContract {
 
   @override
   Future<void> handle(List<MineralCommand> _, List<String> arguments) async {
-    final formatter = DartFormatter(pageWidth: 80);
+    final formatter = DartFormatter(pageWidth: 80, languageVersion: DartFormatter.latestLanguageVersion);
 
     final filename = arguments.firstOrNull?.snakeCase ??
         await _commander.ask<String>(

@@ -351,7 +351,7 @@ final class MakeCommand implements CliCommandContract {
   }
 
   Future<void> _createFileInDisk(Library library) async {
-    final formatter = DartFormatter(pageWidth: 150);
+    final formatter = DartFormatter(pageWidth: 150, languageVersion: DartFormatter.latestLanguageVersion);
 
     _screenManager.leave();
     final task = await _commander.task();

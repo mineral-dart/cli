@@ -14,7 +14,7 @@ abstract interface class PresetContract {
 }
 
 mixin CreateProjectTools {
-  final formatter = DartFormatter(pageWidth: 80);
+  final formatter = DartFormatter(pageWidth: 80, languageVersion: DartFormatter.latestLanguageVersion);
 
   Future<Directory> createBlankProject(String projectName) async {
     try {
